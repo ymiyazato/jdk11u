@@ -1,0 +1,34 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/home/ymiyazato/master/jdk/jdk11u/build/linux-x86_64-normal-server-slowdebug/jdk/bin/java",
+            "args": ["-Xint", "SimpleNew"],
+            "stopAtEntry": false,
+            "cwd": "/home/ymiyazato/master/java-test/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "no print Segmentation Fault",
+                    "text": "handle SIGSEGV nostop noprint pass",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}
