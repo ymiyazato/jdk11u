@@ -1433,7 +1433,8 @@ bool ciTypeFlow::StateVector::apply_one_bytecode(ciBytecodeStream* str) {
 
   case Bytecodes::_multianewarray: do_multianewarray(str);          break;
 
-  case Bytecodes::_new:      do_new(str);                           break;
+  case Bytecodes::_new:
+  case Bytecodes::_hp_new: do_new(str);                           break;
 
   case Bytecodes::_newarray: do_newarray(str);                      break;
 

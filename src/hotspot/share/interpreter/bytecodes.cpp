@@ -68,6 +68,7 @@ bool Bytecodes::check_must_rewrite(Bytecodes::Code code) {
     return false;  // the rewrite is not done by the interpreter
 
   case Bytecodes::_new:
+  case Bytecodes::_hp_new:
     // (Could actually look at the class here, but the profit would be small.)
     return false;  // the rewrite is not always done
 
@@ -484,6 +485,7 @@ void Bytecodes::initialize() {
   def(_goto_w              , "goto_w"              , "boooo", NULL    , T_VOID   ,  0, false);
   def(_jsr_w               , "jsr_w"               , "boooo", NULL    , T_INT    ,  0, false);
   def(_breakpoint          , "breakpoint"          , ""     , NULL    , T_VOID   ,  0, true);
+  def(_hp_new              , "my_new"              , "bkk"  , NULL    , T_OBJECT ,  1, true );
 
   //  JVM bytecodes
   //  bytecode               bytecode name           format   wide f.   result tp  stk traps  std code

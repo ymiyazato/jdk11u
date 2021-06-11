@@ -2882,7 +2882,8 @@ BlockEnd* GraphBuilder::iterate_bytecodes_for_block(int bci) {
       case Bytecodes::_invokestatic   : // fall through
       case Bytecodes::_invokedynamic  : // fall through
       case Bytecodes::_invokeinterface: invoke(code); break;
-      case Bytecodes::_new            : new_instance(s.get_index_u2()); break;
+      case Bytecodes::_new            :
+      case Bytecodes::_hp_new         : new_instance(s.get_index_u2()); break;
       case Bytecodes::_newarray       : new_type_array(); break;
       case Bytecodes::_anewarray      : new_object_array(); break;
       case Bytecodes::_arraylength    : { ValueStack* state_before = copy_state_for_exception(); ipush(append(new ArrayLength(apop(), state_before))); break; }

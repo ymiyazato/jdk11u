@@ -909,6 +909,7 @@ JRT_ENTRY(void, Runtime1::patch_code(JavaThread* thread, Runtime1::StubID stub_i
         }
         break;
       case Bytecodes::_new:
+      case Bytecodes::_hp_new:
         { Bytecode_new bnew(caller_method(), caller_method->bcp_from(bci));
           k = caller_method->constants()->klass_at(bnew.index(), CHECK);
         }

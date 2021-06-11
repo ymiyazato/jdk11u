@@ -2819,6 +2819,7 @@ void Parse::do_one_bytecode() {
     do_multianewarray();
     break;
   case Bytecodes::_new:
+  case Bytecodes::_hp_new:
     do_new();
     break;
 

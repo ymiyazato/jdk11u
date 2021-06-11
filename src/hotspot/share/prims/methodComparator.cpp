@@ -73,6 +73,7 @@ bool MethodComparator::args_same(Bytecodes::Code c_old, Bytecodes::Code c_new) {
   // bytecode versions, so we don't have to bother about them here..
   switch (c_old) {
   case Bytecodes::_new            : // fall through
+  case Bytecodes::_hp_new            : // fall through
   case Bytecodes::_anewarray      : // fall through
   case Bytecodes::_multianewarray : // fall through
   case Bytecodes::_checkcast      : // fall through

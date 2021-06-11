@@ -460,6 +460,7 @@ void TemplateTable::initialize() {
   def(Bytecodes::_ifnonnull           , ubcp|____|clvm|____, atos, vtos, if_nullcmp          , not_equal    );
   def(Bytecodes::_goto_w              , ubcp|____|clvm|____, vtos, vtos, goto_w              ,  _           );
   def(Bytecodes::_jsr_w               , ubcp|____|____|____, vtos, vtos, jsr_w               ,  _           );
+  def(Bytecodes::_hp_new              , ubcp|____|clvm|____, vtos, atos, _new                ,  _           ); 
 
   // wide Java spec bytecodes
   def(Bytecodes::_iload               , ubcp|____|____|iswd, vtos, itos, wide_iload          ,  _           );

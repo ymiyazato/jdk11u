@@ -1643,6 +1643,7 @@ void ClassVerifier::verify_method(const methodHandle& m, TRAPS) {
             &this_uninit, return_type, cp, &stackmap_table, CHECK_VERIFY(this));
           no_control_flow = false; break;
         case Bytecodes::_new :
+        case Bytecodes::_hp_new :
         {
           index = bcs.get_index_u2();
           verify_cp_class_type(bci, index, cp, CHECK_VERIFY(this));
@@ -1773,7 +1774,7 @@ char* ClassVerifier::generate_code_data(const methodHandle& m, u4 code_length, T
   while (!bcs.is_last_bytecode()) {
     if (bcs.raw_next() != Bytecodes::_illegal) {
       int bci = bcs.bci();
-      if (bcs.raw_code() == Bytecodes::_new) {
+      if (bcs.raw_code() == Bytecodes::_new || bcs.raw_code() == Bytecodes::_hp_new) {
         code_data[bci] = NEW_OFFSET;
       } else {
         code_data[bci] = BYTECODE_OFFSET;
@@ -2616,7 +2617,7 @@ void ClassVerifier::verify_invoke_init(
   } else if (type.is_uninitialized()) {
     u2 new_offset = type.bci();
     address new_bcp = bcs->bcp() - bci + new_offset;
-    if (new_offset > (code_length - 3) || (*new_bcp) != Bytecodes::_new) {
+    if (new_offset > (code_length - 3) || ((*new_bcp) != Bytecodes::_new && (*new_bcp) != Bytecodes::_hp_new)) {
       /* Unreachable?  Stack map parsing ensures valid type and new
        * instructions have a valid BCI. */
       verify_error(ErrorContext::bad_code(new_offset),

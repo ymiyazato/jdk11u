@@ -569,6 +569,7 @@ void BytecodePrinter::print_attributes(int bci, outputStream* st) {
       break;
 
     case Bytecodes::_new:
+    case Bytecodes::_hp_new:
     case Bytecodes::_checkcast:
     case Bytecodes::_instanceof:
       { int i = get_index_u2();

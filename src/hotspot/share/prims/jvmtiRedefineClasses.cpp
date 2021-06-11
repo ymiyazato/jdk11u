@@ -1952,6 +1952,7 @@ void VM_RedefineClasses::rewrite_cp_refs_in_method(methodHandle method,
       case Bytecodes::_ldc2_w         : // fall through
       case Bytecodes::_multianewarray : // fall through
       case Bytecodes::_new            : // fall through
+      case Bytecodes::_hp_new            : // fall through
       case Bytecodes::_putfield       : // fall through
       case Bytecodes::_putstatic      :
       {
