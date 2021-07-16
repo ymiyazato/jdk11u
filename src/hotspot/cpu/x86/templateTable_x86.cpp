@@ -4141,6 +4141,162 @@ void TemplateTable::_new() {
   __ bind(done);
 }
 
+// Allocate on huge page
+
+void TemplateTable::_hp_new() {
+  transition(vtos, atos);
+  __ get_unsigned_2_byte_index_at_bcp(rdx, 1);
+  Label slow_case;
+  Label slow_case_no_pop;
+  Label done;
+  Label initialize_header;
+  Label initialize_object;  // including clearing the fields
+
+  __ get_cpool_and_tags(rcx, rax);
+
+  // Make sure the class we're about to instantiate has been resolved.
+  // This is done before loading InstanceKlass to be consistent with the order
+  // how Constant Pool is updated (see ConstantPool::klass_at_put)
+//   const int tags_offset = Array<u1>::base_offset_in_bytes();
+//   __ cmpb(Address(rax, rdx, Address::times_1, tags_offset), JVM_CONSTANT_Class);
+//   __ jcc(Assembler::notEqual, slow_case_no_pop);
+
+//   // get InstanceKlass
+//   __ load_resolved_klass_at_index(rcx, rdx, rcx);
+//   __ push(rcx);  // save the contexts of klass for initializing the header
+
+//   // make sure klass is initialized & doesn't have finalizer
+//   // make sure klass is fully initialized
+//   __ cmpb(Address(rcx, InstanceKlass::init_state_offset()), InstanceKlass::fully_initialized);
+//   __ jcc(Assembler::notEqual, slow_case);
+
+//   // get instance_size in InstanceKlass (scaled to a count of bytes)
+//   __ movl(rdx, Address(rcx, Klass::layout_helper_offset()));
+//   // test to see if it has a finalizer or is malformed in some way
+//   __ testl(rdx, Klass::_lh_instance_slow_path_bit);
+//   __ jcc(Assembler::notZero, slow_case);
+
+//   // Allocate the instance:
+//   //  If TLAB is enabled:
+//   //    Try to allocate in the TLAB.
+//   //    If fails, go to the slow path.
+//   //  Else If inline contiguous allocations are enabled:
+//   //    Try to allocate in eden.
+//   //    If fails due to heap end, go to slow path.
+//   //
+//   //  If TLAB is enabled OR inline contiguous is enabled:
+//   //    Initialize the allocation.
+//   //    Exit.
+//   //
+//   //  Go to slow path.
+
+//   const bool allow_shared_alloc =
+//     Universe::heap()->supports_inline_contig_alloc();
+
+//   const Register thread = LP64_ONLY(r15_thread) NOT_LP64(rcx);
+// #ifndef _LP64
+//   if (UseTLAB || allow_shared_alloc) {
+//     __ get_thread(thread);
+//   }
+// #endif // _LP64
+
+//   if (UseTLAB) {
+//     __ tlab_allocate(thread, rax, rdx, 0, rcx, rbx, slow_case);
+//     if (ZeroTLAB) {
+//       // the fields have been already cleared
+//       __ jmp(initialize_header);
+//     } else {
+//       // initialize both the header and fields
+//       __ jmp(initialize_object);
+//     }
+//   } else {
+//     // Allocation in the shared Eden, if allowed.
+//     //
+//     // rdx: instance size in bytes
+//     __ eden_allocate(thread, rax, rdx, 0, rbx, slow_case);
+//   }
+
+//   // If UseTLAB or allow_shared_alloc are true, the object is created above and
+//   // there is an initialize need. Otherwise, skip and go to the slow path.
+//   if (UseTLAB || allow_shared_alloc) {
+//     // The object is initialized before the header.  If the object size is
+//     // zero, go directly to the header initialization.
+//     __ bind(initialize_object);
+//     __ decrement(rdx, sizeof(oopDesc));
+//     __ jcc(Assembler::zero, initialize_header);
+
+//     // Initialize topmost object field, divide rdx by 8, check if odd and
+//     // test if zero.
+//     __ xorl(rcx, rcx);    // use zero reg to clear memory (shorter code)
+//     __ shrl(rdx, LogBytesPerLong); // divide by 2*oopSize and set carry flag if odd
+
+//     // rdx must have been multiple of 8
+// #ifdef ASSERT
+//     // make sure rdx was multiple of 8
+//     Label L;
+//     // Ignore partial flag stall after shrl() since it is debug VM
+//     __ jccb(Assembler::carryClear, L);
+//     __ stop("object size is not multiple of 2 - adjust this code");
+//     __ bind(L);
+//     // rdx must be > 0, no extra check needed here
+// #endif
+
+//     // initialize remaining object fields: rdx was a multiple of 8
+//     { Label loop;
+//     __ bind(loop);
+//     __ movptr(Address(rax, rdx, Address::times_8, sizeof(oopDesc) - 1*oopSize), rcx);
+//     NOT_LP64(__ movptr(Address(rax, rdx, Address::times_8, sizeof(oopDesc) - 2*oopSize), rcx));
+//     __ decrement(rdx);
+//     __ jcc(Assembler::notZero, loop);
+//     }
+
+//     // initialize object header only.
+//     __ bind(initialize_header);
+//     if (UseBiasedLocking) {
+//       __ pop(rcx);   // get saved klass back in the register.
+//       __ movptr(rbx, Address(rcx, Klass::prototype_header_offset()));
+//       __ movptr(Address(rax, oopDesc::mark_offset_in_bytes ()), rbx);
+//     } else {
+//       __ movptr(Address(rax, oopDesc::mark_offset_in_bytes ()),
+//                 (intptr_t)markOopDesc::prototype()); // header
+//       __ pop(rcx);   // get saved klass back in the register.
+//     }
+// #ifdef _LP64
+//     __ xorl(rsi, rsi); // use zero reg to clear memory (shorter code)
+//     __ store_klass_gap(rax, rsi);  // zero klass gap for compressed oops
+// #endif
+//     __ store_klass(rax, rcx);  // klass
+
+//     {
+//       SkipIfEqual skip_if(_masm, &DTraceAllocProbes, 0);
+//       // Trigger dtrace event for fastpath
+//       __ push(atos);
+//       __ call_VM_leaf(
+//            CAST_FROM_FN_PTR(address, SharedRuntime::dtrace_object_alloc), rax);
+//       __ pop(atos);
+//     }
+
+//     __ jmp(done);
+//   }
+
+//   // slow case
+//   __ bind(slow_case);
+//   __ pop(rcx);   // restore stack pointer to what it was when we came in.
+//   __ bind(slow_case_no_pop);
+
+  Register rarg1 = LP64_ONLY(c_rarg1) NOT_LP64(rax);
+  Register rarg2 = LP64_ONLY(c_rarg2) NOT_LP64(rdx);
+
+  __ get_constant_pool(rarg1);
+  __ get_unsigned_2_byte_index_at_bcp(rarg2, 1);
+  call_VM(rax, CAST_FROM_FN_PTR(address, InterpreterRuntime::_hp_new), rarg1, rarg2);
+   __ verify_oop(rax);
+
+  // continue
+  __ bind(done);
+}
+
+
 void TemplateTable::newarray() {
   transition(itos, atos);
   Register rarg1 = LP64_ONLY(c_rarg1) NOT_LP64(rdx);
