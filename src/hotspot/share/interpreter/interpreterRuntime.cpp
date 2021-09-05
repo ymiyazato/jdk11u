@@ -217,7 +217,6 @@ IRT_END
 IRT_ENTRY(void, InterpreterRuntime::_new(JavaThread* thread, ConstantPool* pool, int index))
   Klass* k = pool->klass_at(index, CHECK);
   InstanceKlass* klass = InstanceKlass::cast(k);
-  printf("entring new\n");
 
   // Make sure we are not instantiating an abstract klass
   klass->check_valid_for_instantiation(true, CHECK);
@@ -246,7 +245,7 @@ IRT_END
 IRT_ENTRY(void, InterpreterRuntime::_hp_new(JavaThread* thread, ConstantPool* pool, int index))
   Klass* k = pool->klass_at(index, CHECK);
   InstanceKlass* klass = InstanceKlass::cast(k);
-  printf("entring hp_new\n");
+  printf("entering hp_new\n");
 
   // Make sure we are not instantiating an abstract klass
   klass->check_valid_for_instantiation(true, CHECK);
