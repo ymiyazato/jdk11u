@@ -300,6 +300,7 @@ class TemplateTable: AllStatic {
   static void _new();
   static void _hp_new(); 
   static void newarray();
+  static void hp_newarray();
   static void anewarray();
   static void arraylength();
   static void checkcast();

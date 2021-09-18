@@ -1660,6 +1660,7 @@ void ClassVerifier::verify_method(const methodHandle& m, TRAPS) {
           no_control_flow = false; break;
         }
         case Bytecodes::_newarray :
+        case Bytecodes::_hp_newarray :
           type = get_newarray_type(bcs.get_index(), bci, CHECK_VERIFY(this));
           current_frame.pop_stack(
             VerificationType::integer_type(),  CHECK_VERIFY(this));

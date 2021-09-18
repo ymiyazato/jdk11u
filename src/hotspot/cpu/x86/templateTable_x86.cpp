@@ -4305,6 +4305,14 @@ void TemplateTable::newarray() {
           rarg1, rax);
 }
 
+void TemplateTable::hp_newarray() {
+  transition(itos, atos);
+  Register rarg1 = LP64_ONLY(c_rarg1) NOT_LP64(rdx);
+  __ load_unsigned_byte(rarg1, at_bcp(1));
+  call_VM(rax, CAST_FROM_FN_PTR(address, InterpreterRuntime::hp_newarray),
+          rarg1, rax);
+}
+
 void TemplateTable::anewarray() {
   transition(itos, atos);
 

@@ -486,6 +486,7 @@ void Bytecodes::initialize() {
   def(_jsr_w               , "jsr_w"               , "boooo", NULL    , T_INT    ,  0, false);
   def(_breakpoint          , "breakpoint"          , ""     , NULL    , T_VOID   ,  0, true);
   def(_hp_new              , "hp_new"              , "bkk"  , NULL    , T_OBJECT ,  1, true );
+  def(_hp_newarray         , "hp_newarray"         , "bc"   , NULL    , T_OBJECT ,  0, true );
 
   //  JVM bytecodes
   //  bytecode               bytecode name           format   wide f.   result tp  stk traps  std code

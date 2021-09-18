@@ -243,6 +243,7 @@ class Bytecodes: AllStatic {
     _jsr_w                = 201, // 0xc9
     _breakpoint           = 202, // 0xca
     _hp_new               = 203, // 0xcb
+    _hp_newarray          = 204, // 0xcc
 
     number_of_java_codes,
 

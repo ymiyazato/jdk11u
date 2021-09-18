@@ -946,6 +946,7 @@ void BCEscapeAnalyzer::iterate_one_block(ciBlock *blk, StateInfo &state, Growabl
         state.apush(allocated_obj);
         break;
       case Bytecodes::_newarray:
+      case Bytecodes::_hp_newarray:
       case Bytecodes::_anewarray:
         state.spop();
         state.apush(allocated_obj);

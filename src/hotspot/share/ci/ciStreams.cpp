@@ -173,6 +173,7 @@ int ciBytecodeStream::get_klass_index() const {
   case Bytecodes::_new:
   case Bytecodes::_hp_new:
   case Bytecodes::_newarray:
+  case Bytecodes::_hp_newarray:
     return get_index_u2();
   default:
     ShouldNotReachHere();

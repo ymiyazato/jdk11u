@@ -449,7 +449,8 @@ void BytecodePrinter::print_attributes(int bci, outputStream* st) {
       }
       break;
 
-    case Bytecodes::_newarray: {
+    case Bytecodes::_newarray: 
+    case Bytecodes::_hp_newarray: {
         BasicType atype = (BasicType)get_index_u1();
         const char* str = type2name(atype);
         if (str == NULL || atype == T_OBJECT || atype == T_ARRAY) {

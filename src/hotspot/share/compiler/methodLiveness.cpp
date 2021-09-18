@@ -774,6 +774,7 @@ void MethodLiveness::BasicBlock::compute_gen_kill_single(ciBytecodeStream *instr
     case Bytecodes::_invokeinterface:
     case Bytecodes::_invokedynamic:
     case Bytecodes::_newarray:
+    case Bytecodes::_hp_newarray:
     case Bytecodes::_anewarray:
     case Bytecodes::_checkcast:
     case Bytecodes::_arraylength:

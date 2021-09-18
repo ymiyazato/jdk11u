@@ -2813,6 +2813,7 @@ void Parse::do_one_bytecode() {
     do_anewarray();
     break;
   case Bytecodes::_newarray:
+  case Bytecodes::_hp_newarray:
     do_newarray((BasicType)iter().get_index());
     break;
   case Bytecodes::_multianewarray:

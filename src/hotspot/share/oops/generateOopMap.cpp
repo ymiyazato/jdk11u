@@ -1600,6 +1600,7 @@ void GenerateOopMap::interp1(BytecodeStream *itr) {
     case Bytecodes::_invokedynamic:     do_method(true,  false, itr->get_index_u4(),         itr->bci()); break;
     case Bytecodes::_invokeinterface:   do_method(false, true,  itr->get_index_u2_cpcache(), itr->bci()); break;
     case Bytecodes::_newarray:
+    case Bytecodes::_hp_newarray:
     case Bytecodes::_anewarray:         pp_new_ref(vCTS, itr->bci()); break;
     case Bytecodes::_checkcast:         do_checkcast(); break;
     case Bytecodes::_arraylength:

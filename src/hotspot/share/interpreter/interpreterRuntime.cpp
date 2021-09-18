@@ -277,6 +277,12 @@ IRT_ENTRY(void, InterpreterRuntime::newarray(JavaThread* thread, BasicType type,
   thread->set_vm_result(obj);
 IRT_END
 
+IRT_ENTRY(void, InterpreterRuntime::hp_newarray(JavaThread* thread, BasicType type, jint size))
+  printf("entering hp_newarray\n");
+  oop obj = oopFactory::new_typeArray(type, size, CHECK);
+  thread->set_vm_result(obj);
+IRT_END
+
 
 IRT_ENTRY(void, InterpreterRuntime::anewarray(JavaThread* thread, ConstantPool* pool, int index, jint size))
   Klass*    klass = pool->klass_at(index, CHECK);
