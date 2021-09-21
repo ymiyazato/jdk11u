@@ -1,6 +1,12 @@
 {
     "files.associations": {
         "*.tcc": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "optional": "cpp",
+        "functional": "cpp",
+        "type_traits": "cpp",
+        "tuple": "cpp",
+        "memory": "cpp",
+        "streambuf": "cpp"
     }
 }

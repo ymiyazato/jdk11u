@@ -47,6 +47,9 @@ private:
   // Alloc region used to satisfy mutator allocation requests.
   MutatorAllocRegion _mutator_alloc_region;
 
+  // Alloc region used to satisfy hugepage allocation requests.
+  
+
   // Alloc region used to satisfy allocation requests by the GC for
   // survivor objects.
   SurvivorGCAllocRegion _survivor_gc_alloc_region;

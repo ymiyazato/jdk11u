@@ -331,6 +331,11 @@ HeapWord* G1CollectedHeap::humongous_obj_allocate(size_t word_size) {
     // later.
     HeapRegion* hr = new_region(word_size, true /* is_old */, false /* do_expand */);
     if (hr != NULL) {
+      // exp : madvise hugepage
+      HeapWord* region_start_addr = hr->bottom();
+      size_t len  = hr->GrainBytes;
+      size_t alignment_hint = 4096 * 1024;
+      os::madvise_hugepage((char *)region_start_addr, len, alignment_hint);
       first = hr->hrm_index();
     }
   } else {

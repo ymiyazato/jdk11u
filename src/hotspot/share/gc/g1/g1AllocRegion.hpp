@@ -262,6 +262,8 @@ protected:
   }
 };
 
+// hugepage mutator alloc region
+
 class SurvivorGCAllocRegion : public G1GCAllocRegion {
 public:
   SurvivorGCAllocRegion(G1EvacStats* stats)
