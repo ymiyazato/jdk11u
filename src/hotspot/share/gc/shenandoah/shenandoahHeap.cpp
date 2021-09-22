@@ -899,6 +899,12 @@ HeapWord* ShenandoahHeap::mem_allocate(size_t size,
   return allocate_memory(req);
 }
 
+HeapWord* ShenandoahHeap::hugepage_mem_allocate(size_t size,
+                                        bool*  gc_overhead_limit_was_exceeded) {
+  ShenandoahAllocRequest req = ShenandoahAllocRequest::for_shared(size);
+  return allocate_memory(req);
+}
+
 MetaWord* ShenandoahHeap::satisfy_failed_metadata_allocation(ClassLoaderData* loader_data,
                                                              size_t size,
                                                              Metaspace::MetadataType mdtype) {

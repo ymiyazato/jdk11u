@@ -563,6 +563,7 @@ private:
 public:
   HeapWord* allocate_memory(ShenandoahAllocRequest& request);
   HeapWord* mem_allocate(size_t size, bool* what);
+  HeapWord* hugepage_mem_allocate(size_t size, bool*  gc_overhead_limit_was_exceeded);
   MetaWord* satisfy_failed_metadata_allocation(ClassLoaderData* loader_data,
                                                size_t size,
                                                Metaspace::MetadataType mdtype);

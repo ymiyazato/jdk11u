@@ -342,6 +342,92 @@ HeapRegion* MutatorAllocRegion::release() {
   return ret;
 }
 
+HeapRegion* MutatorHugepageAllocRegion::allocate_new_region(size_t word_size,
+                                                    bool force) {
+  return _g1h->new_mutator_hugepage_alloc_region(word_size);
+}
+
+void MutatorHugepageAllocRegion::retire_region(HeapRegion* alloc_region,
+                                       size_t allocated_bytes) {
+  _g1h->retire_mutator_hugepage_alloc_region(alloc_region, allocated_bytes);
+}
+
+void MutatorHugepageAllocRegion::init() {
+  assert(_retained_alloc_region == NULL, "Pre-condition");
+  G1AllocRegion::init();
+  _wasted_bytes = 0;
+}
+
+bool MutatorHugepageAllocRegion::should_retain(HeapRegion* region) {
+  size_t free_bytes = region->free();
+  if (free_bytes < MinTLABSize) {
+    return false;
+  }
+
+  if (_retained_alloc_region != NULL &&
+      free_bytes < _retained_alloc_region->free()) {
+    return false;
+  }
+
+  return true;
+}
+
+size_t MutatorHugepageAllocRegion::retire(bool fill_up) {
+  size_t waste = 0;
+  trace("retiring");
+  HeapRegion* current_region = get();
+  if (current_region != NULL) {
+    // Retain the current region if it fits a TLAB and has more
+    // free than the currently retained region.
+    if (should_retain(current_region)) {
+      trace("mutator retained");
+      if (_retained_alloc_region != NULL) {
+        waste = retire_internal(_retained_alloc_region, true);
+      }
+      _retained_alloc_region = current_region;
+    } else {
+      waste = retire_internal(current_region, fill_up);
+    }
+    reset_alloc_region();
+  }
+
+  _wasted_bytes += waste;
+  trace("retired");
+  return waste;
+}
+
+size_t MutatorHugepageAllocRegion::used_in_alloc_regions() {
+  size_t used = 0;
+  HeapRegion* hr = get();
+  if (hr != NULL) {
+    used += hr->used();
+  }
+
+  hr = _retained_alloc_region;
+  if (hr != NULL) {
+    used += hr->used();
+  }
+  return used;
+}
+
+HeapRegion* MutatorHugepageAllocRegion::release() {
+  HeapRegion* ret = G1AllocRegion::release();
+
+  // The retained alloc region must be retired and this must be
+  // done after the above call to release the mutator alloc region,
+  // since it might update the _retained_alloc_region member.
+  if (_retained_alloc_region != NULL) {
+    _wasted_bytes += retire_internal(_retained_alloc_region, false);
+    _retained_alloc_region = NULL;
+  }
+  log_debug(gc, alloc, region)("Mutator Allocation stats, regions: %u, wasted size: " SIZE_FORMAT "%s (%4.1f%%)",
+                               count(),
+                               byte_size_in_proper_unit(_wasted_bytes),
+                               proper_unit_for_byte_size(_wasted_bytes),
+                               percent_of(_wasted_bytes, count() * HeapRegion::GrainBytes));
+  return ret;
+}
+
 HeapRegion* G1GCAllocRegion::allocate_new_region(size_t word_size,
                                                  bool force) {
   assert(!force, "not supported for GC alloc regions");

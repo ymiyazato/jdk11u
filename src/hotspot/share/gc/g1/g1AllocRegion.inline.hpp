@@ -143,4 +143,17 @@ inline HeapWord* MutatorAllocRegion::attempt_retained_allocation(size_t min_word
   return NULL;
 }
 
+inline HeapWord* MutatorHugepageAllocRegion::attempt_retained_allocation_hugepage(size_t min_word_size,
+                                                                 size_t desired_word_size,
+                                                                 size_t* actual_word_size) {
+  if (_retained_alloc_region != NULL) {
+    HeapWord* result = par_allocate(_retained_alloc_region, min_word_size, desired_word_size, actual_word_size);
+    if (result != NULL) {
+      trace("alloc retained", min_word_size, desired_word_size, *actual_word_size, result);
+      return result;
+    }
+  }
+  return NULL;
+}
+
 #endif // SHARE_VM_GC_G1_G1ALLOCREGION_INLINE_HPP

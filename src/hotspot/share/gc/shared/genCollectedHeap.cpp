@@ -449,6 +449,12 @@ HeapWord* GenCollectedHeap::mem_allocate(size_t size,
                            false /* is_tlab */,
                            gc_overhead_limit_was_exceeded);
 }
+HeapWord* GenCollectedHeap::hugepage_mem_allocate(size_t size,
+                                         bool* gc_overhead_limit_was_exceeded) {
+  return mem_allocate_work(size,
+                           false /* is_tlab */,
+                           gc_overhead_limit_was_exceeded);
+}
 
 bool GenCollectedHeap::must_clear_all_soft_refs() {
   return _gc_cause == GCCause::_metadata_GC_clear_soft_refs ||

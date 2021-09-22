@@ -48,7 +48,7 @@ private:
   MutatorAllocRegion _mutator_alloc_region;
 
   // Alloc region used to satisfy hugepage allocation requests.
-  
+  MutatorHugepageAllocRegion _mutator_hugepage_alloc_region;
 
   // Alloc region used to satisfy allocation requests by the GC for
   // survivor objects.
@@ -93,7 +93,9 @@ public:
 #endif
 
   void init_mutator_alloc_region();
+  void init_mutator_hugepage_alloc_region();
   void release_mutator_alloc_region();
+  void release_mutator_hugepage_alloc_region();
 
   void init_gc_alloc_regions(EvacuationInfo& evacuation_info);
   void release_gc_alloc_regions(EvacuationInfo& evacuation_info);
@@ -107,6 +109,11 @@ public:
                                       size_t* actual_word_size);
   inline HeapWord* attempt_allocation_locked(size_t word_size);
   inline HeapWord* attempt_allocation_force(size_t word_size);
+  inline HeapWord* attempt_allocation_hugepage(size_t min_word_size,
+                                      size_t desired_word_size,
+                                      size_t* actual_word_size);
+  inline HeapWord* attempt_allocation_hugepage_locked(size_t word_size);
+  inline HeapWord* attempt_allocation_hugepage_force(size_t word_size);
 
   size_t unsafe_max_tlab_alloc();
   size_t used_in_alloc_regions();
@@ -122,6 +129,7 @@ public:
                                    size_t min_word_size,
                                    size_t desired_word_size,
                                    size_t* actual_word_size);
+  inline MutatorHugepageAllocRegion* mutator_hugepage_alloc_region();
 };
 
 // Manages the PLABs used during garbage collection. Interface for allocation from PLABs.

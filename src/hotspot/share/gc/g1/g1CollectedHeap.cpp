@@ -412,6 +412,18 @@ G1CollectedHeap::mem_allocate(size_t word_size,
   return attempt_allocation(word_size, word_size, &dummy);
 }
 
+HeapWord*
+G1CollectedHeap::hugepage_mem_allocate(size_t word_size,
+                              bool*  gc_overhead_limit_was_exceeded) {
+  assert_heap_not_locked_and_not_at_safepoint();
+
+  if (is_humongous(word_size)) {
+    return attempt_allocation_humongous(word_size);
+  }
+  size_t dummy = 0;
+  return attempt_allocation_hugepage(word_size, word_size, &dummy);
+}
+
 HeapWord* G1CollectedHeap::attempt_allocation_slow(size_t word_size) {
   ResourceMark rm; // For retrieving the thread names in log messages.
 
@@ -514,6 +526,55 @@ HeapWord* G1CollectedHeap::attempt_allocation_slow(size_t word_size) {
       log_warning(gc, alloc)("%s:  Retried allocation %u times for " SIZE_FORMAT " words",
                              Thread::current()->name(), try_count, word_size);
     }
+  }
+
+  ShouldNotReachHere();
+  return NULL;
+}
+
+HeapWord* G1CollectedHeap::attempt_allocation_hugepage_slow(size_t word_size) {
+  ResourceMark rm; // For retrieving the thread names in log messages.
+
+  // Make sure you read the note in attempt_allocation_humongous().
+
+  assert_heap_not_locked_and_not_at_safepoint();
+  assert(!is_humongous(word_size), "attempt_allocation_slow() should not "
+         "be called for humongous allocation requests");
+
+  // We should only get here after the first-level allocation attempt
+  // (attempt_allocation()) failed to allocate.
+
+  // We will loop until a) we manage to successfully perform the
+  // allocation or b) we successfully schedule a collection which
+  // fails to perform the allocation. b) is the only case when we'll
+  // return NULL.
+  HeapWord* result = NULL;
+
+  {
+      MutexLockerEx x(Heap_lock);
+      result = _allocator->attempt_allocation_hugepage_locked(word_size);
+      if (result != NULL) {
+        old_set_add(_allocator->mutator_hugepage_alloc_region()->get());
+        g1mm()->update_sizes();
+        return result;
+      }
+
+      // If the GCLocker is active and we are bound for a GC, try expanding young gen.
+      // This is different to when only GCLocker::needs_gc() is set: try to avoid
+      // waiting because the GCLocker is active to not wait too long.
+      if (GCLocker::is_active_and_needs_gc()) {
+        // No need for an ergo message here, can_expand_young_list() does this when
+        // it returns true.
+        result = _allocator->attempt_allocation_hugepage_force(word_size);
+        if (result != NULL) {
+          old_set_add(_allocator->mutator_hugepage_alloc_region()->get());
+          return result;
+        }
+      }
+  }
+  if (result == NULL){
+    printf("fallback normal allocation");
+    attempt_allocation_slow(word_size);
   }
 
   ShouldNotReachHere();
@@ -750,6 +811,30 @@ inline HeapWord* G1CollectedHeap::attempt_allocation(size_t min_word_size,
   if (result != NULL) {
     assert(*actual_word_size != 0, "Actual size must have been set here");
     dirty_young_block(result, *actual_word_size);
+  } else {
+    *actual_word_size = 0;
+  }
+
+  return result;
+}
+
+inline HeapWord* G1CollectedHeap::attempt_allocation_hugepage(size_t min_word_size,
+                                                     size_t desired_word_size,
+                                                     size_t* actual_word_size) {
+  assert_heap_not_locked_and_not_at_safepoint();
+  assert(!is_humongous(desired_word_size), "attempt_allocation() should not "
+         "be called for humongous allocation requests");
+
+  HeapWord* result = _allocator->attempt_allocation_hugepage(min_word_size, desired_word_size, actual_word_size);
+
+  if (result == NULL) {
+    *actual_word_size = desired_word_size;
+    result = attempt_allocation_hugepage_slow(desired_word_size);
+  }
+
+  assert_heap_not_locked();
+  if (result != NULL) {
+    assert(*actual_word_size != 0, "Actual size must have been set here");
   } else {
     *actual_word_size = 0;
   }
@@ -1725,6 +1810,7 @@ jint G1CollectedHeap::initialize() {
   G1AllocRegion::setup(this, dummy_region);
 
   _allocator->init_mutator_alloc_region();
+  _allocator->init_mutator_hugepage_alloc_region();
 
   // Do create of the monitoring and management support so that
   // values in the heap have been properly initialized.
@@ -4801,7 +4887,7 @@ bool G1CollectedHeap::is_in_closed_subset(const void* p) const {
 // Methods for the mutator alloc region
 
 HeapRegion* G1CollectedHeap::new_mutator_alloc_region(size_t word_size,
-                                                      bool force) {
+                                             bool force) {
   assert_heap_locked_or_at_safepoint(true /* should_be_vm_thread */);
   bool should_allocate = g1_policy()->should_allocate_mutator_region();
   if (force || should_allocate) {
@@ -4819,6 +4905,25 @@ HeapRegion* G1CollectedHeap::new_mutator_alloc_region(size_t word_size,
   return NULL;
 }
 
+HeapRegion* G1CollectedHeap::new_mutator_hugepage_alloc_region(size_t word_size) {
+  assert_heap_locked_or_at_safepoint(true /* should_be_vm_thread */);
+  HeapRegion* new_alloc_region = new_region(word_size,
+                                              true /* is_old */,
+                                              false /* do_expand */);
+  if (new_alloc_region != NULL) {
+      new_alloc_region->set_old();
+      _hr_printer.alloc(new_alloc_region, true);
+      _verifier->check_bitmaps("Mutator Region Allocation", new_alloc_region);
+      _g1_policy->remset_tracker()->update_at_allocate(new_alloc_region);
+      bool during_im = collector_state()->in_initial_mark_gc();
+      new_alloc_region->note_start_of_copying(during_im);
+      return new_alloc_region;
+    }
+  return NULL;
+}
+
+
+
 void G1CollectedHeap::retire_mutator_alloc_region(HeapRegion* alloc_region,
                                                   size_t allocated_bytes) {
   assert_heap_locked_or_at_safepoint(true /* should_be_vm_thread */);
@@ -4831,6 +4936,19 @@ void G1CollectedHeap::retire_mutator_alloc_region(HeapRegion* alloc_region,
   // instead of when it's allocated, since this is the point that its
   // used space has been recored in _summary_bytes_used.
   g1mm()->update_eden_size();
+}
+
+void G1CollectedHeap::retire_mutator_hugepage_alloc_region(HeapRegion* alloc_region,
+                                                  size_t allocated_bytes) {
+  assert_heap_locked_or_at_safepoint(true /* should_be_vm_thread */);
+  assert(alloc_region->is_old(), "all mutator alloc regions should be eden");
+
+  increase_used(allocated_bytes);
+  _hr_printer.retire(alloc_region);
+  // We update the eden sizes here, when the region is retired,
+  // instead of when it's allocated, since this is the point that its
+  // used space has been recored in _summary_bytes_used.
+  g1mm()->update_sizes();
 }
 
 // Methods for the GC alloc regions

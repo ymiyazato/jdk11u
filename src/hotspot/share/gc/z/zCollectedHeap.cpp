@@ -134,6 +134,11 @@ HeapWord* ZCollectedHeap::mem_allocate(size_t size, bool* gc_overhead_limit_was_
   return (HeapWord*)_heap.alloc_object(size_in_bytes);
 }
 
+HeapWord* ZCollectedHeap::hugepage_mem_allocate(size_t size, bool* gc_overhead_limit_was_exceeded) {
+  const size_t size_in_bytes = ZUtils::words_to_bytes(align_object_size(size));
+  return (HeapWord*)_heap.alloc_object(size_in_bytes);
+}
+
 MetaWord* ZCollectedHeap::satisfy_failed_metadata_allocation(ClassLoaderData* loader_data,
                                                              size_t size,
                                                              Metaspace::MetadataType mdtype) {

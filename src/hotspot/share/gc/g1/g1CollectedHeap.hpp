@@ -134,6 +134,7 @@ class G1CollectedHeap : public CollectedHeap {
   friend class VM_G1CollectFull;
   friend class VMStructs;
   friend class MutatorAllocRegion;
+  friend class MutatorHugepageAllocRegion;
   friend class G1FullCollector;
   friend class G1GCAllocRegion;
   friend class G1HeapVerifier;
@@ -432,6 +433,9 @@ private:
 
   virtual HeapWord* mem_allocate(size_t word_size,
                                  bool*  gc_overhead_limit_was_exceeded);
+  virtual HeapWord* hugepage_mem_allocate(size_t word_size,
+                                 bool*  gc_overhead_limit_was_exceeded);
+                                                                  
 
   // First-level mutator allocation attempt: try to allocate out of
   // the mutator alloc region without taking the Heap_lock. This
@@ -439,11 +443,15 @@ private:
   inline HeapWord* attempt_allocation(size_t min_word_size,
                                       size_t desired_word_size,
                                       size_t* actual_word_size);
+  inline HeapWord* attempt_allocation_hugepage(size_t min_word_size,
+                                      size_t desired_word_size,
+                                      size_t* actual_word_size);
 
   // Second-level mutator allocation attempt: take the Heap_lock and
   // retry the allocation attempt, potentially scheduling a GC
   // pause. This should only be used for non-humongous allocations.
   HeapWord* attempt_allocation_slow(size_t word_size);
+  HeapWord* attempt_allocation_hugepage_slow(size_t word_size);
 
   // Takes the Heap_lock and attempts a humongous allocation. It can
   // potentially schedule a GC pause.
@@ -460,7 +468,10 @@ private:
 
   // For mutator alloc regions.
   HeapRegion* new_mutator_alloc_region(size_t word_size, bool force);
+  HeapRegion* new_mutator_hugepage_alloc_region(size_t word_size);
   void retire_mutator_alloc_region(HeapRegion* alloc_region,
+                                   size_t allocated_bytes);
+  void retire_mutator_hugepage_alloc_region(HeapRegion* alloc_region,
                                    size_t allocated_bytes);
 
   // For GC alloc regions.

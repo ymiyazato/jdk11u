@@ -60,7 +60,7 @@ class oopFactory: AllStatic {
   static typeArrayOop    new_charArray           (const char* utf8_str,  TRAPS);
   static typeArrayOop    new_tenured_charArray(int length, TRAPS);
 
-  static typeArrayOop    new_typeArray(BasicType type, int length, TRAPS);
+  static typeArrayOop    new_typeArray(BasicType type, int length, TRAPS, bool isHugepage = false);
   static typeArrayOop    new_typeArray_nozero(BasicType type, int length, TRAPS);
   static typeArrayOop    new_symbolArray(int length, TRAPS);
 

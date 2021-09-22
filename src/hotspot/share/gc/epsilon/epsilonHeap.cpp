@@ -276,6 +276,10 @@ HeapWord* EpsilonHeap::mem_allocate(size_t size, bool *gc_overhead_limit_was_exc
   *gc_overhead_limit_was_exceeded = false;
   return allocate_work(size);
 }
+HeapWord* EpsilonHeap::hugepage_mem_allocate(size_t size, bool *gc_overhead_limit_was_exceeded) {
+  *gc_overhead_limit_was_exceeded = false;
+  return allocate_work(size);
+}
 
 void EpsilonHeap::collect(GCCause::Cause cause) {
   switch (cause) {

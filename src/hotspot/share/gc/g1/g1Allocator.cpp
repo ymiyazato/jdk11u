@@ -47,9 +47,19 @@ void G1Allocator::init_mutator_alloc_region() {
   _mutator_alloc_region.init();
 }
 
+void G1Allocator::init_mutator_hugepage_alloc_region() {
+  assert(_mutator_hugepage_alloc_region.get() == NULL, "pre-condition");
+  _mutator_hugepage_alloc_region.init();
+}
+
 void G1Allocator::release_mutator_alloc_region() {
   _mutator_alloc_region.release();
   assert(_mutator_alloc_region.get() == NULL, "post-condition");
+}
+
+void G1Allocator::release_mutator_hugepage_alloc_region() {
+  _mutator_hugepage_alloc_region.release();
+  assert(_mutator_hugepage_alloc_region.get() == NULL, "post-condition");
 }
 
 bool G1Allocator::is_retained_old_region(HeapRegion* hr) {

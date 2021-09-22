@@ -279,7 +279,7 @@ IRT_END
 
 IRT_ENTRY(void, InterpreterRuntime::hp_newarray(JavaThread* thread, BasicType type, jint size))
   printf("entering hp_newarray\n");
-  oop obj = oopFactory::new_typeArray(type, size, CHECK);
+  oop obj = oopFactory::new_typeArray(type, size, THREAD, true); if (HAS_PENDING_EXCEPTION) return ; (void)(0);
   thread->set_vm_result(obj);
 IRT_END
 

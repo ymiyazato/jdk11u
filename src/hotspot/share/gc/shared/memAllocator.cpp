@@ -267,9 +267,14 @@ void MemAllocator::Allocation::notify_allocation() {
   notify_allocation_jvmti_sampler();
 }
 
-HeapWord* MemAllocator::allocate_outside_tlab(Allocation& allocation) const {
+HeapWord* MemAllocator::allocate_outside_tlab(Allocation& allocation, bool isHugepage) const {
+  HeapWord* mem;
   allocation._allocated_outside_tlab = true;
-  HeapWord* mem = _heap->mem_allocate(_word_size, &allocation._overhead_limit_exceeded);
+  if (isHugepage){
+    mem = _heap->hugepage_mem_allocate(_word_size, &allocation._overhead_limit_exceeded);
+  } else {
+    mem = _heap->mem_allocate(_word_size, &allocation._overhead_limit_exceeded);
+  }
   if (mem == NULL) {
     return mem;
   }
@@ -359,22 +364,22 @@ HeapWord* MemAllocator::allocate_inside_tlab_slow(Allocation& allocation) const 
   return mem;
 }
 
-HeapWord* MemAllocator::mem_allocate(Allocation& allocation) const {
-  if (UseTLAB) {
+HeapWord* MemAllocator::mem_allocate(Allocation& allocation, bool isHugepage) const {
+  if (UseTLAB && !isHugepage) {
     HeapWord* result = allocate_inside_tlab(allocation);
     if (result != NULL) {
       return result;
     }
   }
 
-  return allocate_outside_tlab(allocation);
+  return allocate_outside_tlab(allocation, isHugepage);
 }
 
-oop MemAllocator::allocate() const {
+oop MemAllocator::allocate(bool isHugepage) const {
   oop obj = NULL;
   {
     Allocation allocation(*this, &obj);
-    HeapWord* mem = mem_allocate(allocation);
+    HeapWord* mem = mem_allocate(allocation, isHugepage);
     if (mem != NULL) {
       obj = initialize(mem);
     }

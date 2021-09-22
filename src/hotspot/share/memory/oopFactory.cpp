@@ -52,10 +52,10 @@ typeArrayOop oopFactory::new_tenured_charArray(int length, TRAPS) {
   return TypeArrayKlass::cast(Universe::charArrayKlassObj())->allocate(length, THREAD);
 }
 
-typeArrayOop oopFactory::new_typeArray(BasicType type, int length, TRAPS) {
+typeArrayOop oopFactory::new_typeArray(BasicType type, int length, TRAPS, bool isHugepage) {
   Klass* type_asKlassOop = Universe::typeArrayKlassObj(type);
   TypeArrayKlass* type_asArrayKlass = TypeArrayKlass::cast(type_asKlassOop);
-  typeArrayOop result = type_asArrayKlass->allocate(length, THREAD);
+  typeArrayOop result = type_asArrayKlass->allocate(length, THREAD, isHugepage);
   return result;
 }
 

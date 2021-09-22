@@ -46,7 +46,7 @@ private:
   // Allocate from the current thread's TLAB, with broken-out slow path.
   HeapWord* allocate_inside_tlab(Allocation& allocation) const;
   HeapWord* allocate_inside_tlab_slow(Allocation& allocation) const;
-  HeapWord* allocate_outside_tlab(Allocation& allocation) const;
+  HeapWord* allocate_outside_tlab(Allocation& allocation, bool isHugepage = false) const;
 
 protected:
   MemAllocator(Klass* klass, size_t word_size, Thread* thread)
@@ -67,14 +67,14 @@ protected:
   // allocation. A GC implementation may override this function to satisfy the allocation
   // in any way. But the default is to try a TLAB allocation, and otherwise perform
   // mem_allocate.
-  virtual HeapWord* mem_allocate(Allocation& allocation) const;
+  virtual HeapWord* mem_allocate(Allocation& allocation, bool isHugepage = false) const;
 
   virtual MemRegion obj_memory_range(oop obj) const {
     return MemRegion((HeapWord*)obj, _word_size);
   }
 
 public:
-  oop allocate() const;
+  oop allocate(bool isHugepage = false) const;
   virtual oop initialize(HeapWord* mem) const = 0;
 };
 

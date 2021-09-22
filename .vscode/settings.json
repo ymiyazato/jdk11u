@@ -7,6 +7,16 @@
         "type_traits": "cpp",
         "tuple": "cpp",
         "memory": "cpp",
-        "streambuf": "cpp"
+        "streambuf": "cpp",
+        "unordered_map": "cpp",
+        "fstream": "cpp",
+        "istream": "cpp",
+        "numeric": "cpp",
+        "ostream": "cpp",
+        "memory_resource": "cpp",
+        "array": "cpp",
+        "utility": "cpp",
+        "random": "cpp",
+        "limits": "cpp"
     }
 }

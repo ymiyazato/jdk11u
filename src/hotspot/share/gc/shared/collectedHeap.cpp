@@ -452,9 +452,9 @@ oop CollectedHeap::obj_allocate(Klass* klass, int size, TRAPS) {
   return allocator.allocate();
 }
 
-oop CollectedHeap::array_allocate(Klass* klass, int size, int length, bool do_zero, TRAPS) {
+oop CollectedHeap::array_allocate(Klass* klass, int size, int length, bool do_zero, TRAPS, bool isHugepage) {
   ObjArrayAllocator allocator(klass, size, length, do_zero, THREAD);
-  return allocator.allocate();
+  return allocator.allocate(isHugepage);
 }
 
 oop CollectedHeap::class_allocate(Klass* klass, int size, TRAPS) {

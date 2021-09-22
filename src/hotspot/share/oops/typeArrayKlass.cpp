@@ -97,13 +97,13 @@ TypeArrayKlass::TypeArrayKlass(BasicType type, Symbol* name) : ArrayKlass(name, 
   set_class_loader_data(ClassLoaderData::the_null_class_loader_data());
 }
 
-typeArrayOop TypeArrayKlass::allocate_common(int length, bool do_zero, TRAPS) {
+typeArrayOop TypeArrayKlass::allocate_common(int length, bool do_zero, TRAPS, bool isHugepage) {
   assert(log2_element_size() >= 0, "bad scale");
   if (length >= 0) {
     if (length <= max_length()) {
-      size_t size = typeArrayOopDesc::object_size(layout_helper(), length);
-      return (typeArrayOop)Universe::heap()->array_allocate(this, (int)size, length,
-                                                            do_zero, CHECK_NULL);
+      size_t size = typeArrayOopDesc::object_size(layout_helper(), length); 
+      typeArrayOop tao = (typeArrayOop)Universe::heap()->array_allocate(this, (int)size, length, do_zero, THREAD, isHugepage); if (HAS_PENDING_EXCEPTION) return NULL; (void)(0);
+      return tao;
     } else {
       report_java_out_of_memory("Requested array size exceeds VM limit");
       JvmtiExport::post_array_size_exhausted();
