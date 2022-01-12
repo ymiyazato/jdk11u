@@ -548,13 +548,23 @@ HeapWord* G1CollectedHeap::attempt_allocation_hugepage_slow(size_t word_size) {
   // allocation or b) we successfully schedule a collection which
   // fails to perform the allocation. b) is the only case when we'll
   // return NULL.
+  if (g1_policy()->need_to_start_conc_mark("concurrent humongous allocation",
+                                           word_size)) {
+    collect(GCCause::_g1_humongous_allocation);
+  }
   HeapWord* result = NULL;
 
   {
       MutexLockerEx x(Heap_lock);
       result = _allocator->attempt_allocation_hugepage_locked(word_size);
       if (result != NULL) {
-        old_set_add(_allocator->mutator_hugepage_alloc_region()->get());
+        HeapRegion* hr = _allocator->mutator_hugepage_alloc_region()->get();
+        old_set_add(hr);
+        // madvise hugepage
+        HeapWord* region_start_addr = hr->bottom();
+        size_t len  = hr->GrainBytes;
+        size_t alignment_hint = 4096 * 1024;
+        os::madvise_hugepage((char *)region_start_addr, len, alignment_hint);
         g1mm()->update_sizes();
         return result;
       }
@@ -573,8 +583,9 @@ HeapWord* G1CollectedHeap::attempt_allocation_hugepage_slow(size_t word_size) {
       }
   }
   if (result == NULL){
-    printf("fallback normal allocation");
-    attempt_allocation_slow(word_size);
+    printf("fallback normal allocation\n");
+    result = attempt_allocation_slow(word_size);
+    return result;
   }
 
   ShouldNotReachHere();
@@ -1108,6 +1119,7 @@ void G1CollectedHeap::abort_concurrent_cycle() {
 void G1CollectedHeap::prepare_heap_for_full_collection() {
   // Make sure we'll choose a new allocation region afterwards.
   _allocator->release_mutator_alloc_region();
+  _allocator->release_mutator_hugepage_alloc_region();
   _allocator->abandon_gc_alloc_regions();
   g1_rem_set()->cleanupHRRS();
 
@@ -1149,6 +1161,7 @@ void G1CollectedHeap::prepare_heap_for_mutators() {
   start_new_collection_set();
 
   _allocator->init_mutator_alloc_region();
+  _allocator->init_mutator_hugepage_alloc_region();
 
   // Post collection state updates.
   MetaspaceGC::compute_new_size();

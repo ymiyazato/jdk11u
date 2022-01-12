@@ -167,7 +167,7 @@ size_t G1Allocator::unsafe_max_tlab_alloc() {
 
 size_t G1Allocator::used_in_alloc_regions() {
   assert(Heap_lock->owner() != NULL, "Should be owned on this thread's behalf.");
-  return mutator_alloc_region()->used_in_alloc_regions();
+  return (mutator_alloc_region()->used_in_alloc_regions() + mutator_hugepage_alloc_region()->used_in_alloc_regions());
 }
 
 
