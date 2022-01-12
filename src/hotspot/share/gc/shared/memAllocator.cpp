@@ -270,7 +270,9 @@ void MemAllocator::Allocation::notify_allocation() {
 HeapWord* MemAllocator::allocate_outside_tlab(Allocation& allocation, bool isHugepage) const {
   HeapWord* mem;
   allocation._allocated_outside_tlab = true;
+  printf("entring out tlab\n");
   if (isHugepage){
+    printf("entering hugepage\n");
     mem = _heap->hugepage_mem_allocate(_word_size, &allocation._overhead_limit_exceeded);
   } else {
     mem = _heap->mem_allocate(_word_size, &allocation._overhead_limit_exceeded);
@@ -288,7 +290,7 @@ HeapWord* MemAllocator::allocate_outside_tlab(Allocation& allocation, bool isHug
 
 HeapWord* MemAllocator::allocate_inside_tlab(Allocation& allocation) const {
   assert(UseTLAB, "should use UseTLAB");
-
+  printf("entering in tlab\n");
   // Try allocating from an existing TLAB.
   HeapWord* mem = _thread->tlab().allocate(_word_size);
   if (mem != NULL) {
