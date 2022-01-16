@@ -418,11 +418,11 @@ G1CollectedHeap::hugepage_mem_allocate(size_t word_size,
   assert_heap_not_locked_and_not_at_safepoint();
 
   if (is_humongous(word_size)) {
-    printf("entering humongous\n");
+    // printf("entering humongous\n");
     return attempt_allocation_humongous(word_size);
   }
   size_t dummy = 0;
-  printf("entering normal\n");
+  // printf("entering normal\n");
   return attempt_allocation_hugepage(word_size, word_size, &dummy);
 }
 
