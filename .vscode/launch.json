@@ -10,7 +10,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "/home/ymiyazato/jdk/jdk11u/build/linux-x86_64-normal-server-slowdebug/jdk/bin/java",
-            "args": ["-Xint", "-XX:G1HeapRegionSize=2m", "-Xlog:gc*:/home/ymiyazato/jdk-test/gc.log", "HugePageRegionRotationTest"],
+            "args": ["-XX:G1HeapRegionSize=2m", "-Xmx11g", "-Xlog:gc*:/home/ymiyazato/jdk-test/gc.log", "HugeObjNew"],
             "stopAtEntry": false,
             "cwd": "/home/ymiyazato/jdk-test/",
             "environment": [],
