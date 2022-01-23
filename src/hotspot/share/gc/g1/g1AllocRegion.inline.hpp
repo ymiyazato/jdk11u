@@ -80,7 +80,6 @@ inline HeapWord* G1AllocRegion::attempt_allocation(size_t min_word_size,
                                                    size_t* actual_word_size) {
   HeapRegion* alloc_region = _alloc_region;
   assert_alloc_region(alloc_region != NULL, "not initialized properly");
-  printf("normal attempt allocation\n");
   HeapWord* result = par_allocate(alloc_region, min_word_size, desired_word_size, actual_word_size);
   if (result != NULL) {
     trace("alloc", min_word_size, desired_word_size, *actual_word_size, result);
