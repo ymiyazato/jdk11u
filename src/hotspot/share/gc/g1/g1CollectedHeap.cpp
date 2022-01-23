@@ -422,7 +422,7 @@ G1CollectedHeap::hugepage_mem_allocate(size_t word_size,
     return attempt_allocation_humongous(word_size);
   }
   size_t dummy = 0;
-  printf("entering normal\n");
+  // printf("entering normal\n");
   return attempt_allocation_hugepage(word_size, word_size, &dummy);
 }
 
