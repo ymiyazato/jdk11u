@@ -422,7 +422,7 @@ G1CollectedHeap::hugepage_mem_allocate(size_t word_size,
     return attempt_allocation_humongous(word_size);
   }
   size_t dummy = 0;
-  // printf("entering normal\n");
+  printf("entering normal\n");
   return attempt_allocation_hugepage(word_size, word_size, &dummy);
 }
 
@@ -554,6 +554,7 @@ HeapWord* G1CollectedHeap::attempt_allocation_hugepage_slow(size_t word_size) {
                                            word_size)) {
     collect(GCCause::_g1_humongous_allocation);
   }
+  printf("entering allocation slow\n");
   HeapWord* result = NULL;
 
   {
