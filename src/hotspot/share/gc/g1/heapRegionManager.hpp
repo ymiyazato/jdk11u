@@ -168,6 +168,7 @@ public:
   }
 
   HeapRegion* allocate_free_region(bool is_old) {
+    printf("entering allocation free region")
     HeapRegion* hr = _free_list.remove_region(is_old);
 
     if (hr != NULL) {
