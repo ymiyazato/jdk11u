@@ -133,6 +133,7 @@ inline HeapRegion* FreeRegionList::remove_region(bool from_head) {
   HeapRegion* hr;
 
   if (from_head) {
+    printf("entering allocation free region");
     hr = remove_from_head_impl();
   } else {
     hr = remove_from_tail_impl();
