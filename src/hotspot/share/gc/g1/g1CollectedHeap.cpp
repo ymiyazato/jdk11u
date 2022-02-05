@@ -4924,6 +4924,7 @@ HeapRegion* G1CollectedHeap::new_mutator_alloc_region(size_t word_size,
 
 HeapRegion* G1CollectedHeap::new_mutator_hugepage_alloc_region(size_t word_size) {
   assert_heap_locked_or_at_safepoint(true /* should_be_vm_thread */);
+  printf("new alloc hugepage region");
   HeapRegion* new_alloc_region = new_region(word_size,
                                               true /* is_old */,
                                               false /* do_expand */);
