@@ -554,7 +554,7 @@ HeapWord* G1CollectedHeap::attempt_allocation_hugepage_slow(size_t word_size) {
                                            word_size)) {
     collect(GCCause::_g1_humongous_allocation);
   }
-  // printf("entering allocation slow\n");
+  printf("entering allocation slow\n");
   HeapWord* result = NULL;
 
   {
