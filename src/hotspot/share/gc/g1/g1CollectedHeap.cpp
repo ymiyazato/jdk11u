@@ -578,7 +578,7 @@ HeapWord* G1CollectedHeap::attempt_allocation_hugepage_slow(size_t word_size) {
       if (GCLocker::is_active_and_needs_gc()) {
         // No need for an ergo message here, can_expand_young_list() does this when
         // it returns true.
-        // printf("entering allocation force\n");
+        printf("entering allocation force\n");
         result = _allocator->attempt_allocation_hugepage_force(word_size);
         if (result != NULL) {
           old_set_add(_allocator->mutator_hugepage_alloc_region()->get());
