@@ -102,13 +102,11 @@ inline HeapWord* G1AllocRegion::attempt_allocation_locked(size_t min_word_size,
   // we were waiting to get the lock.
   HeapWord* result = attempt_allocation(min_word_size, desired_word_size, actual_word_size);
   if (result != NULL) {
-    printf("success attempt hugepage allocation");
     return result;
   }
 
   retire(true /* fill_up */);
   result = new_alloc_region_and_allocate(desired_word_size, false /* force */);
-  printf("alloc hugepage allocation");
   if (result != NULL) {
     *actual_word_size = desired_word_size;
     trace("alloc locked (second attempt)", min_word_size, desired_word_size, *actual_word_size, result);
