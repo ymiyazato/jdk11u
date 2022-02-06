@@ -28,6 +28,8 @@
 #include "gc/g1/g1AllocRegion.hpp"
 #include "gc/g1/heapRegion.inline.hpp"
 
+#include <typeinfo>
+
 #define assert_alloc_region(p, message)                                  \
   do {                                                                   \
     assert((p), "[%s] %s c: %u b: %s r: " PTR_FORMAT " u: " SIZE_FORMAT, \
