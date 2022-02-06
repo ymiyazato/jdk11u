@@ -28,8 +28,6 @@
 #include "gc/g1/g1AllocRegion.hpp"
 #include "gc/g1/heapRegion.inline.hpp"
 
-#include <typeinfo>
-
 #define assert_alloc_region(p, message)                                  \
   do {                                                                   \
     assert((p), "[%s] %s c: %u b: %s r: " PTR_FORMAT " u: " SIZE_FORMAT, \
@@ -82,7 +80,7 @@ inline HeapWord* G1AllocRegion::attempt_allocation(size_t min_word_size,
                                                    size_t* actual_word_size) {
   HeapRegion* alloc_region = _alloc_region;
   MutatorHugepageAllocRegion mhar;
-  if (typeid(this) == typeid(mhar)){
+  if (typeid(mhar) == typeid(mhar)){
     printf("entering attempt allocation\n");
   }
   assert_alloc_region(alloc_region != NULL, "not initialized properly");
