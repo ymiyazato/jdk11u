@@ -336,6 +336,7 @@ HeapWord* G1CollectedHeap::humongous_obj_allocate(size_t word_size) {
       size_t len  = hr->GrainBytes;
       size_t alignment_hint = 4096 * 1024;
       os::madvise_hugepage((char *)region_start_addr, len, alignment_hint);
+      printf("madvise after humongous\n");
       first = hr->hrm_index();
     }
   } else {
