@@ -330,15 +330,15 @@ HeapWord* G1CollectedHeap::humongous_obj_allocate(size_t word_size) {
     // from the free lists. Do not try to expand here, we will potentially do that
     // later.
     HeapRegion* hr = new_region(word_size, true /* is_old */, false /* do_expand */);
-    // if (hr != NULL) {
-    //   // exp : madvise hugepage
-    //   HeapWord* region_start_addr = hr->bottom();
-    //   size_t len  = hr->GrainBytes;
-    //   size_t alignment_hint = 4096 * 1024;
-    //   os::madvise_hugepage((char *)region_start_addr, len, alignment_hint);
-    //   printf("madvise after humongous\n");
-    //   first = hr->hrm_index();
-    // }
+    if (hr != NULL) {
+      // exp : madvise hugepage
+      HeapWord* region_start_addr = hr->bottom();
+      size_t len  = hr->GrainBytes;
+      size_t alignment_hint = 4096 * 1024;
+      os::madvise_hugepage((char *)region_start_addr, len, alignment_hint);
+      printf("madvise after humongous\n");
+      first = hr->hrm_index();
+    }
   } else {
     // Policy: Try only empty regions (i.e. already committed first). Maybe we
     // are lucky enough to find some.
