@@ -424,7 +424,7 @@ G1CollectedHeap::hugepage_mem_allocate(size_t word_size,
     return attempt_allocation_humongous(word_size);
   }
   size_t dummy = 0;
-  printf("entering normal\n");
+  // printf("entering normal\n");
   return attempt_allocation_hugepage(word_size, word_size, &dummy);
 }
 
@@ -556,7 +556,7 @@ HeapWord* G1CollectedHeap::attempt_allocation_hugepage_slow(size_t word_size) {
                                            word_size)) {
     collect(GCCause::_g1_humongous_allocation);
   }
-  printf("entering allocation slow\n");
+  // printf("entering allocation slow\n");
   HeapWord* result = NULL;
 
   {
@@ -570,7 +570,7 @@ HeapWord* G1CollectedHeap::attempt_allocation_hugepage_slow(size_t word_size) {
         size_t len  = hr->GrainBytes;
         size_t alignment_hint = 4096 * 1024;
         os::madvise_hugepage((char *)region_start_addr, len, alignment_hint);
-        printf("madvise after locked\n");
+        // printf("madvise after locked\n");
         g1mm()->update_sizes();
         return result;
       }
@@ -4927,7 +4927,7 @@ HeapRegion* G1CollectedHeap::new_mutator_alloc_region(size_t word_size,
 
 HeapRegion* G1CollectedHeap::new_mutator_hugepage_alloc_region(size_t word_size) {
   assert_heap_locked_or_at_safepoint(true /* should_be_vm_thread */);
-  printf("new alloc hugepage region");
+  // printf("new alloc hugepage region\n");
   HeapRegion* new_alloc_region = new_region(word_size,
                                               true /* is_old */,
                                               false /* do_expand */);
