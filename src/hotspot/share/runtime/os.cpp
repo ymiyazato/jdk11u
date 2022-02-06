@@ -1870,6 +1870,7 @@ void os::realign_memory(char *addr, size_t bytes, size_t alignment_hint) {
 }
 
 void os::madvise_hugepage(char *addr, size_t bytes, size_t alignment_hint) {
+  printf("madvise native\n");
   pd_madvise_hugepage(addr, bytes, alignment_hint);
 }
 
