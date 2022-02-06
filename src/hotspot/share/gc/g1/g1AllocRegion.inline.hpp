@@ -79,6 +79,10 @@ inline HeapWord* G1AllocRegion::attempt_allocation(size_t min_word_size,
                                                    size_t desired_word_size,
                                                    size_t* actual_word_size) {
   HeapRegion* alloc_region = _alloc_region;
+  MutatorHugepageAllocRegion mhar;
+  if (typeid(this) == typeid(mhar)){
+    printf("entering attempt allocation\n");
+  }
   assert_alloc_region(alloc_region != NULL, "not initialized properly");
   HeapWord* result = par_allocate(alloc_region, min_word_size, desired_word_size, actual_word_size);
   if (result != NULL) {
