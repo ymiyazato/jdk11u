@@ -842,6 +842,7 @@ inline HeapWord* G1CollectedHeap::attempt_allocation_hugepage(size_t min_word_si
 
   // HeapWord* result = _allocator->attempt_allocation_hugepage(min_word_size, desired_word_size, actual_word_size);
   HeapWord* result = NULL;
+  printf("enter into allocation slow\n");
   if (result == NULL) {
     *actual_word_size = desired_word_size;
     result = attempt_allocation_hugepage_slow(desired_word_size);
