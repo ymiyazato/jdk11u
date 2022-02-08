@@ -118,7 +118,7 @@ void HeapRegionManager::uncommit_regions(uint start, size_t num_regions) {
   _card_counts_mapper->uncommit_regions(start, num_regions);
 }
 
-void HeapRegionManager::make_regions_available(uint start, uint num_regions, WorkGang* pretouch_gang) {
+void HeapRegionManager::make_regions_available(uint start, uint num_regions, WorkGang* pretouch_gang, bool isHugepage) {
   guarantee(num_regions > 0, "No point in calling this for zero regions");
   commit_regions(start, num_regions, pretouch_gang);
   for (uint i = start; i < start + num_regions; i++) {
@@ -142,7 +142,12 @@ void HeapRegionManager::make_regions_available(uint start, uint num_regions, Wor
     MemRegion mr(bottom, bottom + HeapRegion::GrainWords);
 
     hr->initialize(mr);
-    insert_into_free_list(at(i));
+    if (isHugepage){
+      insert_into_free_list_hugepage(at(i));
+    }
+    else {
+      insert_into_free_list(at(i));
+    }
   }
 }
 
@@ -167,6 +172,9 @@ MemoryUsage HeapRegionManager::get_auxiliary_data_memory_usage() const {
 uint HeapRegionManager::expand_by(uint num_regions, WorkGang* pretouch_workers) {
   return expand_at(0, num_regions, pretouch_workers);
 }
+uint HeapRegionManager::expand_by_hugepage(uint num_regions, WorkGang* pretouch_workers) {
+  return expand_at_hugepage(0, num_regions, pretouch_workers);
+}
 
 uint HeapRegionManager::expand_at(uint start, uint num_regions, WorkGang* pretouch_workers) {
   if (num_regions == 0) {
@@ -182,7 +190,29 @@ uint HeapRegionManager::expand_at(uint start, uint num_regions, WorkGang* pretou
   while (expanded < num_regions &&
          (num_last_found = find_unavailable_from_idx(cur, &idx_last_found)) > 0) {
     uint to_expand = MIN2(num_regions - expanded, num_last_found);
-    make_regions_available(idx_last_found, to_expand, pretouch_workers);
+    make_regions_available(idx_last_found, to_expand, pretouch_workers, false);
+    expanded += to_expand;
+    cur = idx_last_found + num_last_found + 1;
+  }
+
+  verify_optional();
+  return expanded;
+}
+uint HeapRegionManager::expand_at_hugepage(uint start, uint num_regions, WorkGang* pretouch_workers) {
+  if (num_regions == 0) {
+    return 0;
+  }
+
+  uint cur = start;
+  uint idx_last_found = 0;
+  uint num_last_found = 0;
+
+  uint expanded = 0;
+
+  while (expanded < num_regions &&
+         (num_last_found = find_unavailable_from_idx(cur, &idx_last_found)) > 0) {
+    uint to_expand = MIN2(num_regions - expanded, num_last_found);
+    make_regions_available(idx_last_found, to_expand, pretouch_workers, true);
     expanded += to_expand;
     cur = idx_last_found + num_last_found + 1;
   }

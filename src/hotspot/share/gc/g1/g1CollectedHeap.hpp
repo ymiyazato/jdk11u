@@ -386,6 +386,7 @@ private:
   // request. If the region is to be used as an old region or for a
   // humongous object, set is_old to true. If not, to false.
   HeapRegion* new_region(size_t word_size, bool is_old, bool do_expand);
+  HeapRegion* new_region_hugepage(size_t word_size, bool is_old, bool do_expand);
 
   // Initialize a contiguous set of free regions of length num_regions
   // and starting at index first so that they appear as a single
@@ -557,6 +558,7 @@ public:
   // false otherwise.
   // (Rounds up to a HeapRegion boundary.)
   bool expand(size_t expand_bytes, WorkGang* pretouch_workers = NULL, double* expand_time_ms = NULL);
+  bool expand_hugepage(size_t expand_bytes, WorkGang* pretouch_workers = NULL, double* expand_time_ms = NULL);
 
   // Returns the PLAB statistics for a given destination.
   inline G1EvacStats* alloc_buffer_stats(InCSetState dest);

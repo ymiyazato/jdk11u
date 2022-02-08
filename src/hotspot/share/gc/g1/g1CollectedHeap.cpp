@@ -189,6 +189,35 @@ HeapRegion* G1CollectedHeap::new_region(size_t word_size, bool is_old, bool do_e
   }
   return res;
 }
+HeapRegion* G1CollectedHeap::new_region_hugepage(size_t word_size, bool is_old, bool do_expand) {
+  assert(!is_humongous(word_size) || word_size <= HeapRegion::GrainWords,
+         "the only time we use this to allocate a humongous region is "
+         "when we are allocating a single humongous region");
+
+  HeapRegion* res = _hrm.allocate_free_region_hugepage(is_old);
+
+  if (res == NULL && do_expand && _expand_heap_after_alloc_failure) {
+    // Currently, only attempts to allocate GC alloc regions set
+    // do_expand to true. So, we should only reach here during a
+    // safepoint. If this assumption changes we might have to
+    // reconsider the use of _expand_heap_after_alloc_failure.
+    // assert(SafepointSynchronize::is_at_safepoint(), "invariant");
+
+    // log_debug(gc, ergo, heap)("Attempt heap expansion (region allocation request failed). Allocation request: " SIZE_FORMAT "B",
+    //                          word_size * HeapWordSize);
+
+    if (expand_hugepage(word_size * HeapWordSize)) {
+      // Given that expand() succeeded in expanding the heap, and we
+      // always expand the heap by an amount aligned to the heap
+      // region size, the free list should in theory not be empty.
+      // In either case allocate_free_region() will check for NULL.
+      res = _hrm.allocate_free_region_hugepage(is_old);
+    } else {
+      _expand_heap_after_alloc_failure = false;
+    }
+  }
+  return res;
+}
 
 HeapWord*
 G1CollectedHeap::humongous_obj_allocate_initialize_regions(uint first,
@@ -1463,6 +1492,45 @@ bool G1CollectedHeap::expand(size_t expand_bytes, WorkGang* pretouch_workers, do
   assert(regions_to_expand > 0, "Must expand by at least one region");
 
   uint expanded_by = _hrm.expand_by(regions_to_expand, pretouch_workers);
+  if (expand_time_ms != NULL) {
+    *expand_time_ms = (os::elapsedTime() - expand_heap_start_time_sec) * MILLIUNITS;
+  }
+
+  if (expanded_by > 0) {
+    size_t actual_expand_bytes = expanded_by * HeapRegion::GrainBytes;
+    assert(actual_expand_bytes <= aligned_expand_bytes, "post-condition");
+    g1_policy()->record_new_heap_size(num_regions());
+  } else {
+    log_debug(gc, ergo, heap)("Did not expand the heap (heap expansion operation failed)");
+
+    // The expansion of the virtual storage space was unsuccessful.
+    // Let's see if it was because we ran out of swap.
+    if (G1ExitOnExpansionFailure &&
+        _hrm.available() >= regions_to_expand) {
+      // We had head room...
+      vm_exit_out_of_memory(aligned_expand_bytes, OOM_MMAP_ERROR, "G1 heap expansion");
+    }
+  }
+  return regions_to_expand > 0;
+}
+bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_workers, double* expand_time_ms) {
+  size_t aligned_expand_bytes = ReservedSpace::page_align_size_up(expand_bytes);
+  aligned_expand_bytes = align_up(aligned_expand_bytes,
+                                       HeapRegion::GrainBytes);
+
+  log_debug(gc, ergo, heap)("Expand the heap. requested expansion amount: " SIZE_FORMAT "B expansion amount: " SIZE_FORMAT "B",
+                            expand_bytes, aligned_expand_bytes);
+
+  if (is_maximal_no_gc()) {
+    log_debug(gc, ergo, heap)("Did not expand the heap (heap already fully expanded)");
+    return false;
+  }
+
+  double expand_heap_start_time_sec = os::elapsedTime();
+  uint regions_to_expand = (uint)(aligned_expand_bytes / HeapRegion::GrainBytes);
+  assert(regions_to_expand > 0, "Must expand by at least one region");
+
+  uint expanded_by = _hrm.expand_by_hugepage(regions_to_expand, pretouch_workers);
   if (expand_time_ms != NULL) {
     *expand_time_ms = (os::elapsedTime() - expand_heap_start_time_sec) * MILLIUNITS;
   }
@@ -4929,9 +4997,9 @@ HeapRegion* G1CollectedHeap::new_mutator_alloc_region(size_t word_size,
 HeapRegion* G1CollectedHeap::new_mutator_hugepage_alloc_region(size_t word_size) {
   assert_heap_locked_or_at_safepoint(true /* should_be_vm_thread */);
   printf("new alloc hugepage region\n");
-  HeapRegion* new_alloc_region = new_region(word_size,
+  HeapRegion* new_alloc_region = new_region_hugepage(word_size,
                                               true /* is_old */,
-                                              false /* do_expand */);
+                                              true /* do_expand */);
   if (new_alloc_region != NULL) {
       new_alloc_region->set_old();
       _hr_printer.alloc(new_alloc_region, true);

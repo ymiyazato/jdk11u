@@ -81,6 +81,7 @@ class HeapRegionManager: public CHeapObj<mtGC> {
   G1RegionToSpaceMapper* _card_counts_mapper;
 
   FreeRegionList _free_list;
+  FreeRegionList hugepage_free_list;
 
   // Each bit in this bitmap indicates that the corresponding region is available
   // for allocation.
@@ -95,7 +96,7 @@ class HeapRegionManager: public CHeapObj<mtGC> {
   HeapWord* heap_bottom() const { return _regions.bottom_address_mapped(); }
   HeapWord* heap_end() const {return _regions.end_address_mapped(); }
 
-  void make_regions_available(uint index, uint num_regions = 1, WorkGang* pretouch_gang = NULL);
+  void make_regions_available(uint index, uint num_regions = 1, WorkGang* pretouch_gang = NULL, bool isHugepage = false);
 
   // Pass down commit calls to the VirtualSpace.
   void commit_regions(uint index, size_t num_regions = 1, WorkGang* pretouch_gang = NULL);
@@ -131,7 +132,8 @@ public:
   HeapRegionManager() : _regions(), _heap_mapper(NULL), _num_committed(0),
                     _next_bitmap_mapper(NULL), _prev_bitmap_mapper(NULL), _bot_mapper(NULL),
                     _allocated_heapregions_length(0), _available_map(mtGC),
-                    _free_list("Free list", new MasterFreeRegionListMtSafeChecker())
+                    _free_list("Free list", new MasterFreeRegionListMtSafeChecker()),
+                    hugepage_free_list("Hugepage free list", new MasterFreeRegionListMtSafeChecker())
   { }
 
   void initialize(G1RegionToSpaceMapper* heap_storage,
@@ -161,10 +163,14 @@ public:
 
   // Insert the given region into the free region list.
   inline void insert_into_free_list(HeapRegion* hr);
+  inline void insert_into_free_list_hugepage(HeapRegion* hr);
 
   // Insert the given region list into the global free region list.
   void insert_list_into_free_list(FreeRegionList* list) {
     _free_list.add_ordered(list);
+  }
+  void insert_list_into_free_list_hugepage(FreeRegionList* list) {
+    hugepage_free_list.add_ordered(list);
   }
 
   HeapRegion* allocate_free_region(bool is_old) {
@@ -176,17 +182,33 @@ public:
     }
     return hr;
   }
+  HeapRegion* allocate_free_region_hugepage(bool is_old) {
+    HeapRegion* hr = hugepage_free_list.remove_region(is_old);
+
+    if (hr != NULL) {
+      assert(hr->next() == NULL, "Single region should not have next");
+      assert(is_available(hr->hrm_index()), "Must be committed");
+    }
+    return hr;
+  }
 
   inline void allocate_free_regions_starting_at(uint first, uint num_regions);
+  inline void allocate_free_regions_starting_at_hugepage(uint first, uint num_regions);
 
   // Remove all regions from the free list.
   void remove_all_free_regions() {
     _free_list.remove_all();
   }
+  void remove_all_free_regions_hugepage() {
+    hugepage_free_list.remove_all();
+  }
 
   // Return the number of committed free regions in the heap.
   uint num_free_regions() const {
     return _free_list.length();
+  }
+  uint num_free_regions_hugepage() const {
+    return hugepage_free_list.length();
   }
 
   size_t total_free_bytes() const {
@@ -211,11 +233,13 @@ public:
   // sequence was expanded by. If a HeapRegion allocation fails, the resulting
   // number of regions might be smaller than what's desired.
   uint expand_by(uint num_regions, WorkGang* pretouch_workers);
+  uint expand_by_hugepage(uint num_regions, WorkGang* pretouch_workers);
 
   // Makes sure that the regions from start to start+num_regions-1 are available
   // for allocation. Returns the number of regions that were committed to achieve
   // this.
   uint expand_at(uint start, uint num_regions, WorkGang* pretouch_workers);
+  uint expand_at_hugepage(uint start, uint num_regions, WorkGang* pretouch_workers);
 
   // Find a contiguous set of empty regions of length num. Returns the start index of
   // that set, or G1_NO_HRM_INDEX.
