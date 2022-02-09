@@ -229,7 +229,7 @@ uint HeapRegionManager::get_unused_free_regions_for_normal_free_list(uint num_re
   while (iter.more_available() || count < num_regions) {
     HeapRegion* hr = iter.get_next();
     if (!hr->usedRegion()){
-      remove_starting_at(hr, 1);
+      _free_list.remove_starting_at(hr, 1);
       hugepage_free_list.add_ordered(hr);
       count++;
     }
