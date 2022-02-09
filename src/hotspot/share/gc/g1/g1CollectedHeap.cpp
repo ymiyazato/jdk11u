@@ -1484,6 +1484,8 @@ HeapWord* G1CollectedHeap::expand_and_allocate(size_t word_size) {
 }
 
 bool G1CollectedHeap::expand(size_t expand_bytes, WorkGang* pretouch_workers, double* expand_time_ms) {
+  printf("enter expand\n");
+  printf("region max length = %d, region length = %d", (int)_hrm->max_length(), (int)_hrm->length());
   size_t aligned_expand_bytes = ReservedSpace::page_align_size_up(expand_bytes);
   aligned_expand_bytes = align_up(aligned_expand_bytes,
                                        HeapRegion::GrainBytes);
@@ -1492,6 +1494,7 @@ bool G1CollectedHeap::expand(size_t expand_bytes, WorkGang* pretouch_workers, do
                             expand_bytes, aligned_expand_bytes);
 
   if (is_maximal_no_gc()) {
+    printf("is maximal failed\n");
     log_debug(gc, ergo, heap)("Did not expand the heap (heap already fully expanded)");
     return false;
   }
@@ -1523,7 +1526,8 @@ bool G1CollectedHeap::expand(size_t expand_bytes, WorkGang* pretouch_workers, do
   return regions_to_expand > 0;
 }
 bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_workers, double* expand_time_ms) {
-  printf("enter expand by\n");
+  printf("enter expand hugepage\n");
+  printf("region max length = %d, region length = %d", (int)_hrm->max_length(), (int)_hrm->length());
   size_t aligned_expand_bytes = ReservedSpace::page_align_size_up(expand_bytes);
   aligned_expand_bytes = align_up(aligned_expand_bytes,
                                        HeapRegion::GrainBytes);
@@ -1533,7 +1537,7 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
 
   if (is_maximal_no_gc()) {
     log_debug(gc, ergo, heap)("Did not expand the heap (heap already fully expanded)");
-    printf("is maximal failed\n");
+    printf("is maximal failed hugepage\n");
     return false;
   }
 
