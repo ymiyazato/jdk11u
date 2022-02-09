@@ -222,7 +222,7 @@ HeapRegion* G1CollectedHeap::new_region_hugepage(size_t word_size, bool is_old, 
     aligned_expand_bytes = align_up(aligned_expand_bytes,
                                        HeapRegion::GrainBytes);
     uint regions_to_expand = (uint)(aligned_expand_bytes / HeapRegion::GrainBytes);
-    _hrm.expand_by_hugepage(0, regions_to_expand, workers());
+    _hrm.expand_by_hugepage(regions_to_expand, workers());
     g1_policy()->record_new_heap_size(num_regions());
   }
   return res;
