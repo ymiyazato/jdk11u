@@ -1529,7 +1529,7 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
   printf("enter expand hugepage\n");
   // printf("region max length = %d, region length = %d", (int)(_hrm.max_length()), (int)(_hrm.length()));
   log_info(gc, heap)("region max length = %u, region length = %u", _hrm.max_length(), _hrm.length());
-  og_info(gc, heap)("old regions = %u, humongous regions = %u, free region = %u", _old_set.length(), _humongous_set.length(), num_free_regions());
+  log_info(gc, heap)("old regions = %u, humongous regions = %u, free region = %u", _old_set.length(), _humongous_set.length(), num_free_regions());
   size_t aligned_expand_bytes = ReservedSpace::page_align_size_up(expand_bytes);
   aligned_expand_bytes = align_up(aligned_expand_bytes,
                                        HeapRegion::GrainBytes);
