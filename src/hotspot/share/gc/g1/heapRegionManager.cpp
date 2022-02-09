@@ -260,9 +260,9 @@ uint HeapRegionManager::num_free_regions_used(void) {
   uint cur = 0;
   while (cur < max_length()){
     HeapRegion* hr = _regions.get_by_index(cur);
-    if (hr->is_free() && hr->usedRegion()){
-      found++;
-    }
+    // if (hr->is_free() && hr->usedRegion()){
+    //   found++;
+    // }
     cur++;
   }
   return found;
