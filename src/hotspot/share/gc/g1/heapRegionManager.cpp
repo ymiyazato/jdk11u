@@ -256,13 +256,14 @@ uint HeapRegionManager::find_contiguous(size_t num, bool empty_only) {
   }
 }
 uint HeapRegionManager::num_free_regions_used(void) {
+  assert_heap_locked_or_at_safepoint(true /* should_be_vm_thread */);
   uint found = 0;
   uint cur = 0;
   while (cur < max_length()){
     HeapRegion* hr = _regions.get_by_index(cur);
-    // if (hr->is_free() && hr->usedRegion()){
-    //   found++;
-    // }
+    if (hr->is_free() && hr->usedRegion()){
+      found++;
+    }
     cur++;
   }
   return found;
