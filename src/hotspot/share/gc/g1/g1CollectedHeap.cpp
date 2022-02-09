@@ -1540,7 +1540,15 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
   if (is_maximal_no_gc()) {
     log_debug(gc, ergo, heap)("Did not expand the heap (heap already fully expanded)");
     printf("is maximal failed hugepage\n");
-    return false;
+    
+    uint num_regions_to_remove = 5;
+    uint num_regions_removed = _hrm.shrink_by(num_regions_to_remove);
+    if (num_regions_removed > 0) {
+      g1_policy()->record_new_heap_size(num_regions());
+    } else {
+      log_debug(gc, ergo, heap)("Did not expand the heap (heap shrinking operation failed)");
+      return false;
+    }
   }
 
   double expand_heap_start_time_sec = os::elapsedTime();
