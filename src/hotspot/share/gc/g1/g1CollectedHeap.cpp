@@ -1485,7 +1485,7 @@ HeapWord* G1CollectedHeap::expand_and_allocate(size_t word_size) {
 
 bool G1CollectedHeap::expand(size_t expand_bytes, WorkGang* pretouch_workers, double* expand_time_ms) {
   printf("enter expand\n");
-  printf("region max length = %d, region length = %d", (int)_hrm->max_length(), (int)_hrm->length());
+  printf("region max length = %d, region length = %d", (int)(_hrm->max_length()), (int)(_hrm->length()));
   size_t aligned_expand_bytes = ReservedSpace::page_align_size_up(expand_bytes);
   aligned_expand_bytes = align_up(aligned_expand_bytes,
                                        HeapRegion::GrainBytes);
