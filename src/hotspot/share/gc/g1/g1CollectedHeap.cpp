@@ -1526,7 +1526,7 @@ bool G1CollectedHeap::expand(size_t expand_bytes, WorkGang* pretouch_workers, do
   return regions_to_expand > 0;
 }
 bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_workers, double* expand_time_ms) {
-  printf("enter expand hugepage\n");
+  printf("enter expand hugepage: %d bytes\n", (int)expand_bytes);
   // printf("region max length = %d, region length = %d", (int)(_hrm.max_length()), (int)(_hrm.length()));
   log_info(gc, heap)("region max length = %u, region length = %u", _hrm.max_length(), _hrm.length());
   log_info(gc, heap)("old regions = %u, humongous regions = %u, free region = %u", _old_set.length(), _humongous_set.length(), num_free_regions());
@@ -1539,13 +1539,14 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
 
   if (is_maximal_no_gc()) {
     log_debug(gc, ergo, heap)("Did not expand the heap (heap already fully expanded)");
-    printf("is maximal failed hugepage\n");
-    log_info(gc, heap)("shrink start");
-    shrink(expand_bytes * 2);
-    log_info(gc, heap)("shrink end");
-    if (is_maximal_no_gc()) {
-      return false;
-    }
+    return false;
+    // printf("is maximal failed hugepage\n");
+    // log_info(gc, heap)("shrink start");
+    // shrink(expand_bytes * 2);
+    // log_info(gc, heap)("shrink end");
+    // if (is_maximal_no_gc()) {
+    //   return false;
+    // }
     // uint num_regions_to_remove = 5;
     // // uint num_regions_removed = _hrm.shrink_by(num_regions_to_remove);
     // uint num_regions_removed = 0;
@@ -1880,7 +1881,11 @@ jint G1CollectedHeap::initialize() {
   _cm_thread = _cm->cm_thread();
 
   // Now expand into the initial heap size.
-  if (!expand(init_byte_size, _workers)) {
+  if (!expand(init_byte_size / 2, _workers)) {
+    vm_shutdown_during_initialization("Failed to allocate initial heap.");
+    return JNI_ENOMEM;
+  }
+  if (!expand_hugepage(init_byte_size / 2, _workers)) {
     vm_shutdown_during_initialization("Failed to allocate initial heap.");
     return JNI_ENOMEM;
   }
