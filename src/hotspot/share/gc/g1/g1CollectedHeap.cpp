@@ -201,7 +201,7 @@ HeapRegion* G1CollectedHeap::new_region_hugepage(size_t word_size, bool is_old, 
     // do_expand to true. So, we should only reach here during a
     // safepoint. If this assumption changes we might have to
     // reconsider the use of _expand_heap_after_alloc_failure.
-    // assert(SafepointSynchronize::is_at_safepoint(), "invariant");
+    assert(SafepointSynchronize::is_at_safepoint(), "invariant");
 
     log_debug(gc, ergo, heap)("Attempt heap expansion (region allocation request failed). Allocation request: " SIZE_FORMAT "B",
                               word_size * HeapWordSize);
