@@ -122,14 +122,18 @@ inline HeapRegion* FreeRegionList::remove_from_tail_impl() {
 }
 
 inline HeapRegion* FreeRegionList::remove_region(bool from_head) {
+  printf("before check_mt_safety\n");
   check_mt_safety();
+  printf("after check_mt_safety\n");
   verify_optional();
+  printf("after verify");
 
   if (is_empty()) {
     return NULL;
   }
+  printf("before assert free_list\n");
   assert_free_region_list(length() > 0 && _head != NULL && _tail != NULL, "invariant");
-
+  printf("after assert free_list\n");
   HeapRegion* hr;
 
   if (from_head) {

@@ -1881,11 +1881,7 @@ jint G1CollectedHeap::initialize() {
   _cm_thread = _cm->cm_thread();
 
   // Now expand into the initial heap size.
-  if (!expand(init_byte_size / 2, _workers)) {
-    vm_shutdown_during_initialization("Failed to allocate initial heap.");
-    return JNI_ENOMEM;
-  }
-  if (!expand_hugepage(init_byte_size / 2, _workers)) {
+  if (!expand(init_byte_size, _workers)) {
     vm_shutdown_during_initialization("Failed to allocate initial heap.");
     return JNI_ENOMEM;
   }
