@@ -5033,14 +5033,12 @@ HeapRegion* G1CollectedHeap::new_mutator_hugepage_alloc_region(size_t word_size)
   assert_heap_locked_or_at_safepoint(true /* should_be_vm_thread */);
   {
     MutexLockerEx x(HugepageFreeList_lock, Mutex::_no_safepoint_check_flag);
-    MutexLockerEx x(Heap_lock);
+    MutexLockerEx y(Heap_lock);
     printf("new alloc hugepage region\n");
     HeapRegion* new_alloc_region = new_region_hugepage(word_size,
                                               true /* is_old */,
                                               true /* do_expand */);
-  }
-  
-  if (new_alloc_region != NULL) {
+    if (new_alloc_region != NULL) {
       new_alloc_region->set_old();
       _hr_printer.alloc(new_alloc_region, true);
       _verifier->check_bitmaps("Mutator Region Allocation", new_alloc_region);
@@ -5049,6 +5047,7 @@ HeapRegion* G1CollectedHeap::new_mutator_hugepage_alloc_region(size_t word_size)
       new_alloc_region->note_start_of_copying(during_im);
       return new_alloc_region;
     }
+  }  
   return NULL;
 }
 
