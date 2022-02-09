@@ -43,7 +43,7 @@ inline void G1AllocRegion::reset_alloc_region() {
 inline HeapWord* G1AllocRegion::allocate(HeapRegion* alloc_region,
                                          size_t word_size) {
   assert(alloc_region != NULL, "pre-condition");
-
+  _alloc_region->set_usedRegion(true);
   if (!_bot_updates) {
     return alloc_region->allocate_no_bot_updates(word_size);
   } else {
@@ -79,7 +79,7 @@ inline HeapWord* G1AllocRegion::attempt_allocation(size_t min_word_size,
                                                    size_t desired_word_size,
                                                    size_t* actual_word_size) {
   HeapRegion* alloc_region = _alloc_region;
-  
+  _alloc_region->set_usedRegion(true);
   assert_alloc_region(alloc_region != NULL, "not initialized properly");
   HeapWord* result = par_allocate(alloc_region, min_word_size, desired_word_size, actual_word_size);
   if (result != NULL) {

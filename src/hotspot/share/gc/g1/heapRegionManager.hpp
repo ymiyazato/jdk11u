@@ -210,6 +210,7 @@ public:
   uint num_free_regions_hugepage() const {
     return hugepage_free_list.length();
   }
+  uint num_free_regions_used(void);
 
   size_t total_free_bytes() const {
     return num_free_regions() * HeapRegion::GrainBytes;

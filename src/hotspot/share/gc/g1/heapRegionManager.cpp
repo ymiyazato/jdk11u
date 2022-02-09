@@ -255,6 +255,18 @@ uint HeapRegionManager::find_contiguous(size_t num, bool empty_only) {
     return G1_NO_HRM_INDEX;
   }
 }
+uint HeapRegionManager::num_free_regions_used(void) {
+  uint found = 0;
+  uint cur = 0;
+  while (cur < max_length()){
+    HeapRegion* hr = _regions.get_by_index(cur);
+    if (hr->is_free() && hr->usedRegion()){
+      found++;
+    }
+    cur++;
+  }
+  return found;
+}
 
 HeapRegion* HeapRegionManager::next_region_in_heap(const HeapRegion* r) const {
   guarantee(r != NULL, "Start region must be a valid region");

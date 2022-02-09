@@ -229,6 +229,10 @@ class HeapRegion: public G1ContiguousSpace {
 
   HeapRegionType _type;
 
+  // hugepage check
+  bool _isHugepageRegion;
+  bool _usedRegion;
+
   // For a humongous region, region in which it starts.
   HeapRegion* _humongous_start_region;
 
@@ -635,6 +639,16 @@ class HeapRegion: public G1ContiguousSpace {
     if (b) {
       _next_marked_bytes = 0;
     }
+  }
+
+  bool isHugepageRegion() { return _isHugepageRegion; }
+  void set_isHugepageRegion(bool b){
+    _isHugepageRegion = b;
+  }
+
+  bool usedRegion() { return _usedRegion; }
+  void set_usedRegion(bool b){
+    _usedRegion = b;
   }
 
   // Iterate over the objects overlapping part of a card, applying cl

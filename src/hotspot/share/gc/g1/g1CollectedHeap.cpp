@@ -1484,7 +1484,7 @@ HeapWord* G1CollectedHeap::expand_and_allocate(size_t word_size) {
 }
 
 bool G1CollectedHeap::expand(size_t expand_bytes, WorkGang* pretouch_workers, double* expand_time_ms) {
-  printf("enter expand\n");
+  // printf("enter expand\n");
   // printf("region max length = %d, region length = %d", (int)(_hrm.max_length()), (int)(_hrm.length()));
   size_t aligned_expand_bytes = ReservedSpace::page_align_size_up(expand_bytes);
   aligned_expand_bytes = align_up(aligned_expand_bytes,
@@ -1530,6 +1530,7 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
   // printf("region max length = %d, region length = %d", (int)(_hrm.max_length()), (int)(_hrm.length()));
   log_info(gc, heap)("region max length = %u, region length = %u", _hrm.max_length(), _hrm.length());
   log_info(gc, heap)("old regions = %u, humongous regions = %u, free region = %u", _old_set.length(), _humongous_set.length(), num_free_regions());
+  log_info(gc, heap)("free used region = %u", _hrm.num_free_regions_used());
   size_t aligned_expand_bytes = ReservedSpace::page_align_size_up(expand_bytes);
   aligned_expand_bytes = align_up(aligned_expand_bytes,
                                        HeapRegion::GrainBytes);
