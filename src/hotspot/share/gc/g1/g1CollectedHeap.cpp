@@ -1545,10 +1545,10 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
     uint num_regions_removed = _hrm.shrink_by(num_regions_to_remove);
     if (num_regions_removed > 0) {
       g1_policy()->record_new_heap_size(num_regions());
-      print("success shrink\n");
+      printf("success shrink\n");
     } else {
       log_debug(gc, ergo, heap)("Did not expand the heap (heap shrinking operation failed)");
-      print("failed shrink\n");
+      printf("failed shrink\n");
       return false;
     }
   }
