@@ -159,37 +159,44 @@ void HeapRegion::set_free() {
 }
 
 void HeapRegion::set_eden() {
+  set_usedRegion(true);
   report_region_type_change(G1HeapRegionTraceType::Eden);
   _type.set_eden();
 }
 
 void HeapRegion::set_eden_pre_gc() {
+  set_usedRegion(true);
   report_region_type_change(G1HeapRegionTraceType::Eden);
   _type.set_eden_pre_gc();
 }
 
 void HeapRegion::set_survivor() {
+  set_usedRegion(true);
   report_region_type_change(G1HeapRegionTraceType::Survivor);
   _type.set_survivor();
 }
 
 void HeapRegion::move_to_old() {
+  set_usedRegion(true);
   if (_type.relabel_as_old()) {
     report_region_type_change(G1HeapRegionTraceType::Old);
   }
 }
 
 void HeapRegion::set_old() {
+  set_usedRegion(true);
   report_region_type_change(G1HeapRegionTraceType::Old);
   _type.set_old();
 }
 
 void HeapRegion::set_open_archive() {
+  set_usedRegion(true);
   report_region_type_change(G1HeapRegionTraceType::OpenArchive);
   _type.set_open_archive();
 }
 
 void HeapRegion::set_closed_archive() {
+  set_usedRegion(true);
   report_region_type_change(G1HeapRegionTraceType::ClosedArchive);
   _type.set_closed_archive();
 }
@@ -198,6 +205,7 @@ void HeapRegion::set_starts_humongous(HeapWord* obj_top, size_t fill_size) {
   assert(!is_humongous(), "sanity / pre-condition");
   assert(top() == bottom(), "should be empty");
 
+  set_usedRegion(true);
   report_region_type_change(G1HeapRegionTraceType::StartsHumongous);
   _type.set_starts_humongous();
   _humongous_start_region = this;
@@ -210,6 +218,7 @@ void HeapRegion::set_continues_humongous(HeapRegion* first_hr) {
   assert(top() == bottom(), "should be empty");
   assert(first_hr->is_starts_humongous(), "pre-condition");
 
+  set_usedRegion(true);
   report_region_type_change(G1HeapRegionTraceType::ContinuesHumongous);
   _type.set_continues_humongous();
   _humongous_start_region = first_hr;
