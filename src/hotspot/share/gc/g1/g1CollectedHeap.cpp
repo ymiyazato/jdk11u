@@ -1547,7 +1547,7 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
     return regions_to_expand > 0;
   } else {
     regions_to_expand -= expanded_by;
-    printf("parial success region expand by get free region: %u regions\n", regions_to_expand);
+    printf("parial success region expand by get free region: %d regions\n", (int)expanded_by);
   }
   if (is_maximal_no_gc()) {
     log_debug(gc, ergo, heap)("Did not expand the heap (heap already fully expanded)");
