@@ -1547,6 +1547,7 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
     return regions_to_expand > 0;
   } else {
     regions_to_expand -= expand_by;
+    printf("parial success region expand by get free region: %u regions\n", regions_to_expand);
   }
   if (is_maximal_no_gc()) {
     log_debug(gc, ergo, heap)("Did not expand the heap (heap already fully expanded)");
@@ -1573,7 +1574,8 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
 
   
   assert(regions_to_expand > 0, "Must expand by at least one region");
-  uint expanded_by = _hrm.expand_by_hugepage(regions_to_expand, pretouch_workers);
+  // expanded_by = _hrm.expand_by_hugepage(regions_to_expand, pretouch_workers);
+  expand_by = 0;
   if (expand_time_ms != NULL) {
     *expand_time_ms = (os::elapsedTime() - expand_heap_start_time_sec) * MILLIUNITS;
   }
