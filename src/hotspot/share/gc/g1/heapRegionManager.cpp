@@ -227,7 +227,7 @@ uint HeapRegionManager::get_unused_free_regions_for_normal_free_list(uint num_re
   FreeRegionListIterator iter(&_free_list);
   uint count = 0;
   printf("num_regions = %u\n", num_regions);
-  while (iter.more_available() || count < num_regions) {
+  while (iter.more_available() && count < num_regions) {
     HeapRegion* hr = iter.get_next();
     if (!hr->usedRegion() && hr->is_free()){
       _free_list.remove_starting_at(hr, 1);
