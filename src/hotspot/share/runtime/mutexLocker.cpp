@@ -122,7 +122,7 @@ Mutex*   PerfDataManager_lock         = NULL;
 Mutex*   OopMapCacheAlloc_lock        = NULL;
 
 Mutex*   FreeList_lock                = NULL;
-Mutex*   HugepageFreeList_Lock        = NULL;
+Mutex*   HugepageFreeList_lock        = NULL;
 Mutex*   OldSets_lock                 = NULL;
 Monitor* RootRegionScan_lock          = NULL;
 
