@@ -202,7 +202,7 @@ uint HeapRegionManager::expand_at_hugepage(uint start, uint num_regions, WorkGan
   if (num_regions == 0) {
     return 0;
   }
-  printf("enter expand at")
+  printf("enter expand at");
   uint cur = start;
   uint idx_last_found = 0;
   uint num_last_found = 0;
