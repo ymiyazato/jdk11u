@@ -201,7 +201,7 @@ HeapRegion* G1CollectedHeap::new_region_hugepage(size_t word_size, bool is_old, 
     // do_expand to true. So, we should only reach here during a
     // safepoint. If this assumption changes we might have to
     // reconsider the use of _expand_heap_after_alloc_failure.
-    assert(SafepointSynchronize::is_at_safepoint(), "invariant");
+    // assert(SafepointSynchronize::is_at_safepoint(), "invariant");
 
     log_debug(gc, ergo, heap)("Attempt heap expansion (region allocation request failed). Allocation request: " SIZE_FORMAT "B",
                               word_size * HeapWordSize);
@@ -1564,7 +1564,8 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
   double expand_heap_start_time_sec = os::elapsedTime();
   uint regions_to_expand = (uint)(aligned_expand_bytes / HeapRegion::GrainBytes);
   assert(regions_to_expand > 0, "Must expand by at least one region");
-  uint expanded_by = _hrm.expand_by_hugepage(regions_to_expand, pretouch_workers);
+  // uint expanded_by = _hrm.expand_by_hugepage(regions_to_expand, pretouch_workers);
+  uint expanded_by = 0;
   if (expand_time_ms != NULL) {
     *expand_time_ms = (os::elapsedTime() - expand_heap_start_time_sec) * MILLIUNITS;
   }
@@ -5030,10 +5031,7 @@ HeapRegion* G1CollectedHeap::new_mutator_alloc_region(size_t word_size,
 }
 
 HeapRegion* G1CollectedHeap::new_mutator_hugepage_alloc_region(size_t word_size) {
-  assert_heap_locked_or_at_safepoint(true /* should_be_vm_thread */);
   {
-    MutexLockerEx x(HugepageFreeList_lock, Mutex::_no_safepoint_check_flag);
-    MutexLockerEx y(Heap_lock);
     printf("new alloc hugepage region\n");
     HeapRegion* new_alloc_region = new_region_hugepage(word_size,
                                               true /* is_old */,
