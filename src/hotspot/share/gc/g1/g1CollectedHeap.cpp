@@ -1542,6 +1542,7 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
   assert(regions_to_expand > 0, "Must expand by at least one region");
 
   uint expanded_by = _hrm.get_unused_free_regions_for_normal_free_list(regions_to_expand);
+  printf("expanded by: %d regions\n", (int)expanded_by);
   if (expanded_by == regions_to_expand){
     printf("success region expand by get free region\n");
     return regions_to_expand > 0;
