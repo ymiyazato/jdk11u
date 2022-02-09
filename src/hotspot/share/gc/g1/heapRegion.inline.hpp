@@ -225,6 +225,7 @@ inline HeapWord* HeapRegion::par_allocate_no_bot_updates(size_t min_word_size,
                                                          size_t desired_word_size,
                                                          size_t* actual_word_size) {
   assert(is_young(), "we can only skip BOT updates on young regions");
+  set_usedRegion(true);
   return par_allocate_impl(min_word_size, desired_word_size, actual_word_size);
 }
 
@@ -237,6 +238,7 @@ inline HeapWord* HeapRegion::allocate_no_bot_updates(size_t min_word_size,
                                                      size_t desired_word_size,
                                                      size_t* actual_word_size) {
   assert(is_young(), "we can only skip BOT updates on young regions");
+  set_usedRegion(true);
   return allocate_impl(min_word_size, desired_word_size, actual_word_size);
 }
 
