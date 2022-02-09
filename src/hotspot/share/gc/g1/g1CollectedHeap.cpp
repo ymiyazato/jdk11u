@@ -1555,9 +1555,11 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
 
   double expand_heap_start_time_sec = os::elapsedTime();
   uint regions_to_expand = (uint)(aligned_expand_bytes / HeapRegion::GrainBytes);
+  printf("before assert regoins to expand\n");
   assert(regions_to_expand > 0, "Must expand by at least one region");
-
+  printf("after assert regoins to expand\n");
   uint expanded_by = _hrm.expand_by_hugepage(regions_to_expand, pretouch_workers);
+  printf("after expandby\n");
   if (expand_time_ms != NULL) {
     *expand_time_ms = (os::elapsedTime() - expand_heap_start_time_sec) * MILLIUNITS;
   }
