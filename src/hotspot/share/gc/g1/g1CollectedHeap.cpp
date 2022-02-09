@@ -196,35 +196,35 @@ HeapRegion* G1CollectedHeap::new_region_hugepage(size_t word_size, bool is_old, 
 
   HeapRegion* res = _hrm.allocate_free_region_hugepage(is_old);
 
-  // if (res == NULL && do_expand && _expand_heap_after_alloc_failure) {
-  //   // Currently, only attempts to allocate GC alloc regions set
-  //   // do_expand to true. So, we should only reach here during a
-  //   // safepoint. If this assumption changes we might have to
-  //   // reconsider the use of _expand_heap_after_alloc_failure.
-  //   // assert(SafepointSynchronize::is_at_safepoint(), "invariant");
+  if (res == NULL && do_expand && _expand_heap_after_alloc_failure) {
+    // Currently, only attempts to allocate GC alloc regions set
+    // do_expand to true. So, we should only reach here during a
+    // safepoint. If this assumption changes we might have to
+    // reconsider the use of _expand_heap_after_alloc_failure.
+    assert(SafepointSynchronize::is_at_safepoint(), "invariant");
 
-  //   // log_debug(gc, ergo, heap)("Attempt heap expansion (region allocation request failed). Allocation request: " SIZE_FORMAT "B",
-  //   //                          word_size * HeapWordSize);
+    log_debug(gc, ergo, heap)("Attempt heap expansion (region allocation request failed). Allocation request: " SIZE_FORMAT "B",
+                              word_size * HeapWordSize);
 
-  //   if (expand_hugepage(word_size * HeapWordSize)) {
-  //     // Given that expand() succeeded in expanding the heap, and we
-  //     // always expand the heap by an amount aligned to the heap
-  //     // region size, the free list should in theory not be empty.
-  //     // In either case allocate_free_region() will check for NULL.
-  //     res = _hrm.allocate_free_region_hugepage(is_old);
-  //   } else {
-  //     printf("expand failed\n");
-  //     // _expand_heap_after_alloc_failure = false;
-  //   }
-  // }
-  if (res == NULL){
-    size_t aligned_expand_bytes = ReservedSpace::page_align_size_up(word_size * HeapWordSize);
-    aligned_expand_bytes = align_up(aligned_expand_bytes,
-                                       HeapRegion::GrainBytes);
-    uint regions_to_expand = (uint)(aligned_expand_bytes / HeapRegion::GrainBytes);
-    _hrm.expand_by_hugepage(regions_to_expand, workers());
-    g1_policy()->record_new_heap_size(num_regions());
+    if (expand_hugepage(word_size * HeapWordSize)) {
+      // Given that expand() succeeded in expanding the heap, and we
+      // always expand the heap by an amount aligned to the heap
+      // region size, the free list should in theory not be empty.
+      // In either case allocate_free_region() will check for NULL.
+      res = _hrm.allocate_free_region_hugepage(is_old);
+    } else {
+      printf("expand failed\n");
+      _expand_heap_after_alloc_failure = false;
+    }
   }
+  // if (res == NULL){
+  //   size_t aligned_expand_bytes = ReservedSpace::page_align_size_up(word_size * HeapWordSize);
+  //   aligned_expand_bytes = align_up(aligned_expand_bytes,
+  //                                      HeapRegion::GrainBytes);
+  //   uint regions_to_expand = (uint)(aligned_expand_bytes / HeapRegion::GrainBytes);
+  //   _hrm.expand_by_hugepage(regions_to_expand, workers());
+  //   g1_policy()->record_new_heap_size(num_regions());
+  // }
   return res;
 }
 
@@ -5008,6 +5008,7 @@ HeapRegion* G1CollectedHeap::new_mutator_alloc_region(size_t word_size,
 
 HeapRegion* G1CollectedHeap::new_mutator_hugepage_alloc_region(size_t word_size) {
   assert_heap_locked_or_at_safepoint(true /* should_be_vm_thread */);
+  MutexLockerEx x(HugepageFreeList_lock, Mutex::_no_safepoint_check_flag);
   printf("new alloc hugepage region\n");
   HeapRegion* new_alloc_region = new_region_hugepage(word_size,
                                               true /* is_old */,
