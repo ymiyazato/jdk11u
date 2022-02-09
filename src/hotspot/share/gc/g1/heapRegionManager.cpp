@@ -216,6 +216,9 @@ uint HeapRegionManager::expand_at_hugepage(uint start, uint num_regions, WorkGan
     expanded += to_expand;
     cur = idx_last_found + num_last_found + 1;
   }
+  if (num_last_found == 0){
+    printf("num_last_found = 0\n");
+  }
 
   verify_optional();
   return expanded;

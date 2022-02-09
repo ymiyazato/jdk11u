@@ -213,6 +213,7 @@ HeapRegion* G1CollectedHeap::new_region_hugepage(size_t word_size, bool is_old, 
       // In either case allocate_free_region() will check for NULL.
       res = _hrm.allocate_free_region_hugepage(is_old);
     } else {
+      printf("expand failed\n");
       _expand_heap_after_alloc_failure = false;
     }
   }
@@ -1540,6 +1541,7 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
     assert(actual_expand_bytes <= aligned_expand_bytes, "post-condition");
     g1_policy()->record_new_heap_size(num_regions());
   } else {
+    printf("expand_internal failed\n");
     log_debug(gc, ergo, heap)("Did not expand the heap (heap expansion operation failed)");
 
     // The expansion of the virtual storage space was unsuccessful.
