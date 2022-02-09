@@ -242,6 +242,8 @@ public:
   uint expand_at(uint start, uint num_regions, WorkGang* pretouch_workers);
   uint expand_at_hugepage(uint start, uint num_regions, WorkGang* pretouch_workers);
 
+  uint get_unused_free_regions_for_normal_free_list(uint num_regions);
+
   // Find a contiguous set of empty regions of length num. Returns the start index of
   // that set, or G1_NO_HRM_INDEX.
   uint find_contiguous_only_empty(size_t num) { return find_contiguous(num, true); }

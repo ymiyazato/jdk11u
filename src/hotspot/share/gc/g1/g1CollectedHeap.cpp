@@ -1526,6 +1526,7 @@ bool G1CollectedHeap::expand(size_t expand_bytes, WorkGang* pretouch_workers, do
   return regions_to_expand > 0;
 }
 bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_workers, double* expand_time_ms) {
+  double expand_heap_start_time_sec = os::elapsedTime();
   printf("enter expand hugepage: %d bytes\n", (int)expand_bytes);
   // printf("region max length = %d, region length = %d", (int)(_hrm.max_length()), (int)(_hrm.length()));
   log_info(gc, heap)("region max length = %u, region length = %u", _hrm.max_length(), _hrm.length());
@@ -1537,7 +1538,16 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
 
   log_debug(gc, ergo, heap)("Expand the heap. requested expansion amount: " SIZE_FORMAT "B expansion amount: " SIZE_FORMAT "B",
                             expand_bytes, aligned_expand_bytes);
+  uint regions_to_expand = (uint)(aligned_expand_bytes / HeapRegion::GrainBytes);
+  assert(regions_to_expand > 0, "Must expand by at least one region");
 
+  uint expand_by = get_unused_free_regions_for_normal_free_list(regions_to_expand);
+  if (expand_by == regions_to_expand){
+    printf("success region expand by get free region\n");
+    return regions_to_expand > 0;
+  } else {
+    regions_to_expand -= expand_by;
+  }
   if (is_maximal_no_gc()) {
     log_debug(gc, ergo, heap)("Did not expand the heap (heap already fully expanded)");
     return false;
@@ -1561,11 +1571,9 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
     // }
   }
 
-  double expand_heap_start_time_sec = os::elapsedTime();
-  uint regions_to_expand = (uint)(aligned_expand_bytes / HeapRegion::GrainBytes);
+  
   assert(regions_to_expand > 0, "Must expand by at least one region");
-  // uint expanded_by = _hrm.expand_by_hugepage(regions_to_expand, pretouch_workers);
-  uint expanded_by = 0;
+  uint expanded_by = _hrm.expand_by_hugepage(regions_to_expand, pretouch_workers);
   if (expand_time_ms != NULL) {
     *expand_time_ms = (os::elapsedTime() - expand_heap_start_time_sec) * MILLIUNITS;
   }

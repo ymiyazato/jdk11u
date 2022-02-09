@@ -223,6 +223,19 @@ uint HeapRegionManager::expand_at_hugepage(uint start, uint num_regions, WorkGan
   verify_optional();
   return expanded;
 }
+uint HeapRegionManager::get_unused_free_regions_for_normal_free_list(uint num_regions){
+  FreeRegionListIterator iter(&_free_list);
+  uint count = 0;
+  while (iter.more_available() || count < num_regions) {
+    HeapRegion* hr = iter.get_next();
+    if (!hr->usedRegion()){
+      remove_starting_at(hr, 1);
+      hugepage_free_list.add_ordered(hr);
+      count++;
+    }
+  }
+  return count;
+}
 
 uint HeapRegionManager::find_contiguous(size_t num, bool empty_only) {
   uint found = 0;
