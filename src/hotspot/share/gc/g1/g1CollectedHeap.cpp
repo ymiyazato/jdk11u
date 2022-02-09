@@ -214,7 +214,7 @@ HeapRegion* G1CollectedHeap::new_region_hugepage(size_t word_size, bool is_old, 
       res = _hrm.allocate_free_region_hugepage(is_old);
     } else {
       printf("expand failed\n");
-      _expand_heap_after_alloc_failure = false;
+      // _expand_heap_after_alloc_failure = false;
     }
   }
   return res;
@@ -1524,6 +1524,7 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
 
   if (is_maximal_no_gc()) {
     log_debug(gc, ergo, heap)("Did not expand the heap (heap already fully expanded)");
+    printf("is maximal failed\n");
     return false;
   }
 
