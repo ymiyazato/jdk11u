@@ -64,6 +64,7 @@ inline HeapWord* G1Allocator::attempt_allocation_hugepage(size_t min_word_size,
     printf("success attempt allocatioin");
     return result;
   }
+  printf("before allocation free bytes = %d bytes\n", (int)mutator_hugepage_alloc_region()->used_in_alloc_regions());
   return mutator_hugepage_alloc_region()->attempt_allocation(min_word_size, desired_word_size, actual_word_size);
 }
 

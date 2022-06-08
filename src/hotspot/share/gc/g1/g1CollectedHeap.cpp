@@ -603,6 +603,9 @@ HeapWord* G1CollectedHeap::attempt_allocation_hugepage_slow(size_t word_size) {
       result = _allocator->attempt_allocation_hugepage_locked(word_size);
       if (result != NULL) {
         HeapRegion* hr = _allocator->mutator_hugepage_alloc_region()->get();
+        printf("used = %d bytes\n", (int)hr->used());
+        printf("free = %d bytes\n", (int)hr->free());
+        
         old_set_add(hr);
         // madvise hugepage
         HeapWord* region_start_addr = hr->bottom();
