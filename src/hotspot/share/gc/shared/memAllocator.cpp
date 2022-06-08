@@ -271,7 +271,7 @@ HeapWord* MemAllocator::allocate_outside_tlab(Allocation& allocation, bool isHug
   HeapWord* mem;
   allocation._allocated_outside_tlab = true;
   if (isHugepage){
-    printf("entering hugepage\n");
+    // printf("entering hugepage\n");
     mem = _heap->hugepage_mem_allocate(_word_size, &allocation._overhead_limit_exceeded);
   } else {
     mem = _heap->mem_allocate(_word_size, &allocation._overhead_limit_exceeded);

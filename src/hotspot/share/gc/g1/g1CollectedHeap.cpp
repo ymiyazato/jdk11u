@@ -458,12 +458,12 @@ G1CollectedHeap::hugepage_mem_allocate(size_t word_size,
   assert_heap_not_locked_and_not_at_safepoint();
 
   if (is_humongous(word_size)) {
-    printf("entering humongous\n");
+    // printf("entering humongous\n");
     
     return attempt_allocation_humongous(word_size);
   }
   size_t dummy = 0;
-  printf("entering normal\n");
+  // printf("entering normal\n");
   return attempt_allocation_hugepage(word_size, word_size, &dummy);
 }
 
@@ -595,7 +595,7 @@ HeapWord* G1CollectedHeap::attempt_allocation_hugepage_slow(size_t word_size) {
                                            word_size)) {
     collect(GCCause::_g1_humongous_allocation);
   }
-  printf("entering allocation slow\n");
+  // printf("entering allocation slow\n");
   HeapWord* result = NULL;
 
   {
@@ -603,8 +603,8 @@ HeapWord* G1CollectedHeap::attempt_allocation_hugepage_slow(size_t word_size) {
       result = _allocator->attempt_allocation_hugepage_locked(word_size);
       if (result != NULL) {
         HeapRegion* hr = _allocator->mutator_hugepage_alloc_region()->get();
-        printf("used = %d bytes\n", (int)hr->used());
-        printf("free = %d bytes\n", (int)hr->free());
+        // printf("used = %d bytes\n", (int)hr->used());
+        // printf("free = %d bytes\n", (int)hr->free());
         
         old_set_add(hr);
         // madvise hugepage
@@ -612,8 +612,8 @@ HeapWord* G1CollectedHeap::attempt_allocation_hugepage_slow(size_t word_size) {
         size_t len  = hr->GrainBytes;
         size_t alignment_hint = 4096 * 1024;
         os::madvise_hugepage((char *)region_start_addr, len, alignment_hint);
-        printf("hugepage_len : %d\n", (int)len);
-        printf("madvise after locked\n");
+        // printf("hugepage_len : %d\n", (int)len);
+        // printf("madvise after locked\n");
         g1mm()->update_sizes();
         return result;
       }
@@ -895,7 +895,7 @@ inline HeapWord* G1CollectedHeap::attempt_allocation_hugepage(size_t min_word_si
 
   assert_heap_not_locked();
   if (result != NULL) {
-    printf("success attempt allocatino hugepage\n");
+    // printf("success attempt allocation hugepage\n");
     assert(*actual_word_size != 0, "Actual size must have been set here");
   } else {
     *actual_word_size = 0;
@@ -1532,7 +1532,7 @@ bool G1CollectedHeap::expand(size_t expand_bytes, WorkGang* pretouch_workers, do
 }
 bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_workers, double* expand_time_ms) {
   double expand_heap_start_time_sec = os::elapsedTime();
-  printf("enter expand hugepage: %d bytes\n", (int)expand_bytes);
+  // printf("enter expand hugepage: %d bytes\n", (int)expand_bytes);
   // printf("region max length = %d, region length = %d", (int)(_hrm.max_length()), (int)(_hrm.length()));
   log_info(gc, heap)("region max length = %u, region length = %u", _hrm.max_length(), _hrm.length());
   log_info(gc, heap)("old regions = %u, humongous regions = %u, free region = %u", _old_set.length(), _humongous_set.length(), num_free_regions());
@@ -1547,13 +1547,13 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
   assert(regions_to_expand > 0, "Must expand by at least one region");
 
   uint expanded_by = _hrm.get_unused_free_regions_for_normal_free_list(regions_to_expand);
-  printf("expanded by: %d regions\n", (int)expanded_by);
+  // printf("expanded by: %d regions\n", (int)expanded_by);
   if (expanded_by == regions_to_expand){
-    printf("success region expand by get free region\n");
+    // printf("success region expand by get free region\n");
     return regions_to_expand > 0;
   } else {
     regions_to_expand -= expanded_by;
-    printf("parial success region expand by get free region: %d regions\n", (int)expanded_by);
+    // printf("parial success region expand by get free region: %d regions\n", (int)expanded_by);
   }
   if (is_maximal_no_gc()) {
     log_debug(gc, ergo, heap)("Did not expand the heap (heap already fully expanded)");
@@ -1591,7 +1591,7 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
     assert(actual_expand_bytes <= aligned_expand_bytes, "post-condition");
     g1_policy()->record_new_heap_size(num_regions());
   } else {
-    printf("expand_internal failed\n");
+    // printf("expand_internal failed\n");
     log_debug(gc, ergo, heap)("Did not expand the heap (heap expansion operation failed)");
 
     // The expansion of the virtual storage space was unsuccessful.
