@@ -150,7 +150,7 @@ inline HeapWord* MutatorHugepageAllocRegion::attempt_retained_allocation_hugepag
     HeapWord* result = par_allocate(_retained_alloc_region, min_word_size, desired_word_size, actual_word_size);
     if (result != NULL) {
       trace("alloc retained", min_word_size, desired_word_size, *actual_word_size, result);
-      // printf("retain allocation\n");
+      printf("retain allocation\n");
       return result;
     }
   }

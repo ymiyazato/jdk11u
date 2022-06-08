@@ -59,9 +59,9 @@ inline HeapWord* G1Allocator::attempt_allocation_hugepage(size_t min_word_size,
                                                  size_t desired_word_size,
                                                  size_t* actual_word_size) {
   HeapWord* result = mutator_hugepage_alloc_region()->attempt_retained_allocation_hugepage(min_word_size, desired_word_size, actual_word_size);
-  // printf("failed retained allocatioin");
+  printf("failed retained allocatioin");
   if (result != NULL) {
-    // printf("success attempt allocatioin");
+    printf("success attempt allocatioin");
     return result;
   }
   return mutator_hugepage_alloc_region()->attempt_allocation(min_word_size, desired_word_size, actual_word_size);
