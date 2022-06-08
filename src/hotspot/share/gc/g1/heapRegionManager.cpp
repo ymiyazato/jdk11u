@@ -226,13 +226,17 @@ uint HeapRegionManager::expand_at_hugepage(uint start, uint num_regions, WorkGan
 uint HeapRegionManager::get_unused_free_regions_for_normal_free_list(uint num_regions){
   FreeRegionListIterator iter_tmp(&_free_list);
   uint count = 0;
+  uint free_count = 0;
+  uint total_count = 0;
   // printf("num_regions = %u\n", num_regions);
   while(iter_tmp.more_available()){
     HeapRegion* hr = iter_tmp.get_next();
-    count++;
+    if (!hr->usedRegion() && hr->is_free()){
+      free_count++;
+    }
+    total_count++;
   }
-  printf("count = %d\n", (int)count);
-  count = 0;
+  printf("free count = %d, total count = %d\n", (int)free_count, (int)total_count);
   FreeRegionListIterator iter(&_free_list);
 
   while (iter.more_available() && count < num_regions) {
