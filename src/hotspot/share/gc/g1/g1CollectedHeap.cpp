@@ -895,6 +895,7 @@ inline HeapWord* G1CollectedHeap::attempt_allocation_hugepage(size_t min_word_si
 
   assert_heap_not_locked();
   if (result != NULL) {
+    printf("success attempt allocatino hugepage\n");
     assert(*actual_word_size != 0, "Actual size must have been set here");
   } else {
     *actual_word_size = 0;
