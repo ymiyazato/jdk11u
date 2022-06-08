@@ -76,6 +76,7 @@ inline HeapWord* G1Allocator::attempt_allocation_locked(size_t word_size) {
 
 inline HeapWord* G1Allocator::attempt_allocation_hugepage_locked(size_t word_size) {
   printf("start hugeapge allocation locked\n");
+  printf("changed!\n");
   HeapWord* result = mutator_hugepage_alloc_region()->attempt_allocation_locked(word_size);
   assert(result != NULL || mutator_hugepage_alloc_region()->get() == NULL,
          "Must not have a mutator alloc region if there is no memory, but is " PTR_FORMAT, p2i(mutator_hugepage_alloc_region()->get()));
