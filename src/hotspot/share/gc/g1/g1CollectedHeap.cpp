@@ -612,7 +612,7 @@ HeapWord* G1CollectedHeap::attempt_allocation_hugepage_slow(size_t word_size) {
         size_t len  = hr->GrainBytes;
         size_t alignment_hint = 4096 * 1024;
         os::madvise_hugepage((char *)region_start_addr, len, alignment_hint);
-        // printf("hugepage_len : %d\n", (int)len);
+        printf("hugepage_len : %d\n", (int)len);
         // printf("madvise after locked\n");
         g1mm()->update_sizes();
         return result;
