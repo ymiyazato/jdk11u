@@ -460,7 +460,8 @@ G1CollectedHeap::hugepage_mem_allocate(size_t word_size,
   if (is_humongous(word_size)) {
     // printf("entering humongous\n");
     
-    return attempt_allocation_humongous(word_size);
+    // return attempt_allocation_humongous(word_size);
+    return attempt_allocation_hugepage(word_size, word_size, &dummy);
   }
   size_t dummy = 0;
   // printf("entering normal\n");
