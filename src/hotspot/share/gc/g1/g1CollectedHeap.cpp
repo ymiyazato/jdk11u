@@ -377,7 +377,9 @@ HeapWord* G1CollectedHeap::humongous_obj_allocate(size_t word_size) {
     //   printf("madvise after humongous\n");
     //   first = hr->hrm_index();
     // }
-    first = hr->hrm_index();
+    if (hr != NULL){
+      first = hr->hrm_index();
+    }
   } else {
     // Policy: Try only empty regions (i.e. already committed first). Maybe we
     // are lucky enough to find some.
