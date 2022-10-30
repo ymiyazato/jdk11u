@@ -1583,6 +1583,7 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
   
   assert(regions_to_expand > 0, "Must expand by at least one region");
   expanded_by = _hrm.expand_by_hugepage(regions_to_expand, pretouch_workers);
+  log_info(gc, heap)("regions_to_expand = %u", regions_to_expand);
   log_info(gc, heap)("expanded_by = %u", expanded_by);
   // expanded_by = 0;
   if (expand_time_ms != NULL) {
@@ -1605,8 +1606,8 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
       vm_exit_out_of_memory(aligned_expand_bytes, OOM_MMAP_ERROR, "G1 heap expansion");
     }
   }
-  //return regions_to_expand > 0;
-  return false;
+  return regions_to_expand > 0;
+  // return false;
 }
 
 void G1CollectedHeap::shrink_helper(size_t shrink_bytes) {
