@@ -1582,8 +1582,9 @@ bool G1CollectedHeap::expand_hugepage(size_t expand_bytes, WorkGang* pretouch_wo
 
   
   assert(regions_to_expand > 0, "Must expand by at least one region");
-  // expanded_by = _hrm.expand_by_hugepage(regions_to_expand, pretouch_workers);
-  expanded_by = 0;
+  expanded_by = _hrm.expand_by_hugepage(regions_to_expand, pretouch_workers);
+  log_info(gc, heap)("expanded_by = %u", expanded_by);
+  // expanded_by = 0;
   if (expand_time_ms != NULL) {
     *expand_time_ms = (os::elapsedTime() - expand_heap_start_time_sec) * MILLIUNITS;
   }
