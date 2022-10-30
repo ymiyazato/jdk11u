@@ -247,18 +247,18 @@ uint HeapRegionManager::get_unused_free_regions_for_normal_free_list(uint num_re
       count++;
     }
   }
-  if (count < num_regions){
-    FreeRegionListIterator iter2(&_free_list);
-    count = 0;
-    while (iter2.more_available() && count < num_regions) {
-      HeapRegion* hr = iter2.get_next();
-      if (hr->is_free()){
-        _free_list.remove_starting_at(hr, 1);
-        hugepage_free_list.add_ordered(hr);
-        count++;
-      }
-    }
-  }
+  // if (count < num_regions){
+  //   FreeRegionListIterator iter2(&_free_list);
+  //   count = 0;
+  //   while (iter2.more_available() && count < num_regions) {
+  //     HeapRegion* hr = iter2.get_next();
+  //     if (hr->is_free()){
+  //       _free_list.remove_starting_at(hr, 1);
+  //       hugepage_free_list.add_ordered(hr);
+  //       count++;
+  //     }
+  //   }
+  // }
   // printf("count = %d\n", (int)count);
   return count;
 }
